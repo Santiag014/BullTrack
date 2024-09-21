@@ -1,0 +1,1136 @@
+@import url('https://fonts.googleapis.com/css2?family=SUSE:wght@100..800&display=swap');
+
+/*----------Estilos Generales Plantilla MiApp----------*/
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "SUSE", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal
+}
+
+/* Estilos Principales para la pantalla de carga */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #fff; /* Fondo blanco o el color de fondo de tu página */
+}
+
+.loading-logo-wrapper {
+  position: relative;
+  width: 200px; /* Ajusta el tamaño del logo */
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-logo {
+  width: 100%;
+  height: 100%;
+  opacity: 0; /* Comienza completamente transparente */
+  z-index: 1;
+  animation: reveal-opacity 3s ease-in-out forwards, reveal-shadow 3s ease-in-out forwards; /* Animación de opacidad y sombra */
+  filter: drop-shadow(15px 15px 5px rgba(0, 0, 0, 0.0));
+}
+
+/* Animación de opacidad del logo */
+@keyframes reveal-opacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Animación para la sombra */
+@keyframes reveal-shadow {
+  0% {
+    filter: drop-shadow(15px 15px 5px rgba(0, 0, 0, 0.2));
+  }
+  100% {
+    filter: drop-shadow(15px 15px 20px rgba(0, 0, 0, 0.7));
+  }
+}
+
+.local-icon {
+  width: 20px;
+  height: 20px;
+  fill: #333;
+  margin-right: 10px;
+}
+
+/*----Estilos Para el Login----*/
+
+/* Contenedor principal que contiene el logo y el formulario */
+.login-container {
+  position: relative; /* Necesario para posicionar el pseudo-elemento */
+  display: flex;
+  height: 100vh;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+  flex-direction: row; /* Alinea el logo y el formulario uno al lado del otro */
+  overflow: hidden;
+  padding: 10rem; /* Agrega un poco de espacio interior */
+  background-image: url('../Media/SeguimientoLogin.jpg'); 
+  background-size: cover; /* Asegura que la imagen cubra todo el contenedor */
+}
+
+.login-container::before {
+  content: ""; /* Necesario para que el pseudo-elemento sea visible */
+  position: absolute; /* Posiciona el pseudo-elemento sobre el contenedor */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Negro con 50% de opacidad */
+  z-index: 1; /* Asegura que la máscara esté encima de la imagen pero debajo del contenido */
+}
+
+/* Asegúrate de que el contenido de tu contenedor esté encima de la máscara */
+.login-container > * {
+  position: relative; /* Para que el contenido esté encima del pseudo-elemento */
+  z-index: 2;
+}
+
+.background-section {
+  flex: 1;
+  /* background-color: #ff7a22; */
+  display: flex;
+  justify-content:flex-end;
+  align-items: center;
+  transition: background-position 0.5s ease-in-out;
+  border-radius: 10px;
+}
+
+.logo-container {
+  width: 22vw; /* Aumenta el tamaño del contenedor a 40% del ancho de la pantalla */
+  height: 35vh; /* Aumenta el tamaño relativo a la altura de la pantalla */
+  max-width: 400px; /* Aumenta el límite máximo del ancho a 400px */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(188,188,188, 0.5);
+  box-shadow: 0 0 20px rgba(158, 158, 158, 1.8);
+  border-radius: 10px;
+  margin-left: 10%;
+}
+
+.logo {
+  width: 110%; /* El logo ocupa el 100% del nuevo tamaño del contenedor */
+  height: auto; /* Mantiene la proporción */
+  object-fit: contain; /* Asegura que el logo se ajuste sin distorsión */
+  filter: drop-shadow(4px 4px 10px rgba(0, 0, 0, 0.7)); /* Sombra ajustada a la forma del logo */
+}
+
+.form-section {
+  background-color: white;
+  padding: 2% 4% 2% 4%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(51, 51, 51, 5);
+  width: 30vw; /* Ajusta el ancho según el tamaño de la pantalla */
+  max-width: 400px; /* Limita el tamaño máximo */
+  min-width: 250px; /* Tamaño mínimo para pantallas pequeñas */
+  height: 52vh; /* Aumenta la altura para hacer el formulario más alto */
+  max-height: 600px; /* Establece una altura máxima */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around; /* Distribuye los elementos de manera uniforme */
+  box-sizing: border-box;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.875rem; /* Tamaño de fuente para el mensaje de error */
+  margin-top: 0.5rem;
+}
+
+/* Elementos del formulario */
+.input-group{
+  margin-bottom: 1rem; /* Aumenta el espaciado entre los elementos */
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.input-group input {
+  padding: 0.75rem; /* Aumenta el padding para que los campos de entrada se vean más grandes */
+}
+
+.signin-btn {
+  padding: 1rem; /* Agranda el botón de inicio de sesión */
+}
+
+/* Estilo para el texto "Inicio de sesión" */
+.inicio-seccion {
+  margin-top: 15px;
+  margin-bottom: 1.5rem;
+  color: #333;
+  text-align: center;
+}
+
+/* Estilos del grupo de entrada (input) */
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #000;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.olvidar-contraseña {
+  text-align: right;
+  margin-bottom: 1rem;
+}
+
+.forget-contraseña {
+  color: #ff7a22;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.forget-contraseña:hover {
+  text-decoration: underline;
+}
+
+/* Botón de inicio de sesión */
+.signin-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #ff7a22;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.signin-btn:hover {
+  background-color: #e86a12;
+  box-shadow: 0 0 15px #bb672b;
+
+}
+
+/* Estilos Generales Componente de Ruta de Acceso */
+nav ul {
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: 0;
+}
+
+nav li {
+  margin-right: 5px;
+}
+
+nav a {
+  text-decoration: none;
+  color: #fff;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+nav span {
+  margin: 0 5px;
+  color: #fff;
+}
+
+
+/*----------Estilos Especificos Plantilla MiApp----------*/
+.background-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+  overflow: hidden;
+  clip-path: inset(0 0 53% 0); /* Recorta 30% desde la parte superior */
+  background-image: url('../Media/FonfoDash.jpg');
+}
+
+.background-image::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.GridContanier {
+  display: grid;
+  grid-template-areas:
+      "GridInformacionUsuario GridHeaderApp_2 GridHeaderApp_2"
+      "GridInformacionUsuario GridHeaderApp GridHeaderApp"
+      "GridInformacionUsuario GridContentApp GridContentApp";
+  grid-template-columns: 250px 1fr 1fr;
+  grid-template-rows: 80px 35px 1fr;
+  gap: 10px;
+  height: 100vh;
+  width: 100vw;
+  padding: 10px;
+  overflow: hidden; /* Prueba también overflow-x o overflow-y si es necesario */
+  box-sizing: border-box; /* Asegura que padding y border se incluyan en el tamaño total */
+}
+
+.GridInformacionUsuario {
+  width: 100%;
+  height: 100%; /*100vh*/
+  grid-area: GridInformacionUsuario;
+  background: linear-gradient(to bottom, #d35400, #ff924a);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 20px;
+  text-align: center;
+  border-radius: 10px;
+  position: relative;
+  z-index: 1;
+  overflow-y: auto; 
+}
+
+.GridHeaderApp {
+  grid-area: GridHeaderApp;
+  background: linear-gradient(to bottom, #d35400, #ff7a22);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.GridHeaderApp_2 {
+  grid-area: GridHeaderApp_2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  border-radius: 8px;
+}
+
+.GridContentApp {
+  grid-area: GridContentApp;
+  border-radius: 8px;
+  /* box-shadow: 2px 2px 10px 1px #0a2319; */
+  overflow: auto;
+  background-color: rgba(255, 255, 255, 0.1); 
+  display: flex;
+  flex-direction: column;
+  position: relative; /* Necesario para posicionar el fondo de manera absoluta */
+}
+
+.background-image_2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background-image: url('./Imagenes/PosibleFondoBull.png'); */
+  background-position: center; 
+  background-repeat: no-repeat; 
+  filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.6)); 
+}
+
+.logo_image_Dashboard {
+  width: 75%;
+  max-width: 200px;
+  height: auto;
+  object-fit: contain;
+}
+
+.Marca {
+  width: 100%;
+  padding: 20px 0;
+}
+
+.InformacionDashboar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 20px;
+}
+
+.FotoUsuarioDashboard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.FotoUsuarioDashboard img {
+  width: 60%;
+  max-width: 150px;
+  height: auto;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+
+.InformacionModulos {
+  width: 100%;
+}
+
+.TipoGrafia {
+  color: #fff;
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.TipoGrafia_App {
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+
+.ModulosDash {
+  width: 100%;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+}
+
+.ModulosDash:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.ModulosDash svg {
+  margin-right: 10px;
+}
+
+.ModulosDash span {
+  font-size: 14px;
+}
+
+.ModulosDash:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.ModulosDash svg {
+  margin-right: 10px;
+}
+
+.ModulosDash span {
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .GridInformacionUsuario {
+    padding: 10px;
+  }
+
+  .logo_image_Dashboard {
+    width: 90%;
+  }
+
+  .FotoUsuarioDashboard img {
+    width: 80%;
+  }
+
+  .TipoGrafia, .ModulosDash span {
+    font-size: 14px;
+  }
+}
+
+.BotonSalir{
+  width: 8%;
+  height: 40px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.BotonSalir:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.BotonSalir svg {
+  margin-right: 10px;
+}
+
+.BotonSalir span {
+  font-size: 14px;
+}
+
+/* Estilos Generales de Contactos del CRM */
+
+.ContainerContactosCRM, .ContainerPropuestasComercial , .ContainerDashboradInicial{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: auto;
+  width: 100%;
+  height: 100%;
+}
+
+.ContactosCreados{
+  width: 25%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.MostrarListaDesplegable{
+  width: 90%;
+  height: 95%;
+  background-color: rgb(238,238,238, 0.5);
+  box-shadow: 1px 1px 10px 1px #d1d0d0;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  border-radius: 10px;
+}
+
+.InputFiltrar{
+  width: 90%;
+  height: 6%;
+  margin: 10px 0px 0px 0px;
+}
+
+.InputFiltrar_2{
+  width: 90%;
+  height: 6%;
+  margin: 2px 0px 0px 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+
+.Lista, .Lista_produccion{
+  width: 90%;
+  height: 85%;
+  margin: 10px; 
+  overflow: auto;
+}
+
+.Lista_produccion li {
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Para que el cambio de color sea suave */
+}
+
+.seleccionado {
+  background-color: #f0f0f0; /* Color que desees */
+  color: #000; /* Color del texto, si es necesario */
+}
+
+/* Estilo para cuando un <li> está seleccionado */
+.Lista_produccion li.seleccionado {
+  background-color: #d3d3d3; /* Cambia el fondo a gris claro cuando está seleccionado */
+}
+
+.Lista_2{
+  width: 97%;
+  height: 85%;
+  padding: 4% 1% 2% 4%;
+  overflow: auto;
+}
+
+.Lista ul, .Lista_2 ul {
+  list-style-type: none; 
+}
+
+/* Estilo para la barra de desplazamiento */
+*::-webkit-scrollbar {
+  width: 4px; /* Ancho de la barra de desplazamiento vertical */
+  height: 12px; /* Altura de la barra de desplazamiento horizontal */
+}
+
+/* Estilo para el pulgar de la barra de desplazamiento */
+*::-webkit-scrollbar-thumb {
+  background-color: #343434; /* Color del pulgar */
+  border-radius: 6px; /* Bordes redondeados del pulgar */
+}
+
+/* Estilo para el área de pista de la barra de desplazamiento */
+*::-webkit-scrollbar-track {
+  background-color: transparent; /* Color del área de pista */
+  border-radius: 4px; /* Bordes redondeados del área de pista */
+}
+
+/* Estilo para el área de pista cuando el pulgar está activo */
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(211,84,0, 0.80); /* Color del pulgar cuando se pasa el mouse por encima */
+}
+
+.FormularioContactos, .FormularioPropuestasComercial {
+  position: relative; /* Necesario para usar ::before */
+  width: 75%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-image: url('../Media/PosibleFondoBull.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: saturate(1.8);
+}
+
+.ConatinerIframeInicial{
+  position: relative; /* Necesario para usar ::before */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background-image: url('../Media/PosibleFondoBull.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: saturate(1.8);
+  padding: 0 1% 0 1%;
+}
+
+/* Sombra solo en la imagen de fondo */
+.FormularioContactos::before, .FormularioPropuestasComercial::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: inherit; /* Copia la imagen de fondo */
+  background-position: inherit;
+  background-repeat: inherit;
+  background-size: inherit;
+  filter: blur(10px); /* Ajusta este valor según sea necesario */
+  z-index: -1; /* Coloca la sombra debajo del contenido */
+}
+
+.FormContactos, .FormPropuestas, .FormProduccion{
+  width: 100%;
+  height: 95%;
+  background-color: rgb(255,255,255, 0.2);
+  box-shadow: 1px 1px 10px 1px #d1d0d0;
+  margin-left: 10px;
+  border-radius: 10px;
+  display: flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  flex-direction: column;
+  padding: 1%  2%;
+  overflow: auto;
+}
+.filterUserSelect{
+  padding: 4% 4% 2% 4%;
+}
+.SelectUserPropuesta{
+  width: 100%;
+  height: 95%;
+  /* box-shadow: 1px 1px 10px 1px #d1d0d0; */
+  border-radius: 10px;
+  display: flex;
+  align-items:flex-start;
+  justify-content:flex-start;
+  flex-direction: column;
+  padding: 0%  1%;
+  overflow: hidden;
+  display: none;
+}
+
+.ContainerSelectUSer{
+  width: 100%;
+  height: 100%;
+  padding: 1%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.InformacionSelectedUser{
+  width: 60%;
+  height: 100%;
+  background-color: rgb(238,238,238, 0.5);
+  border-radius: 10px;
+  padding: 1.5% 1% 1% 1%;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content:space-between;
+}
+
+.InformacionSelectedUser input{
+  margin-top: 1%;
+}
+
+.CuadroFiltradoSelectUser{
+  width: 35%;
+  height: 100%;
+  background-color: rgb(238,238,238, 0.5);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.CuadroSeleccionUsuario{
+  width: 40%;
+  height: 100%;
+}
+
+.ButtonSeleccionarUser{
+  width: 100%;
+  height: 10%;
+  margin-bottom: 5%;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+
+.ParteSuperiorContacto, .ParteSuperiorPropuesta{
+  width: 100%;
+  height: 10%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items:center;
+  justify-content:space-around;
+  flex-direction: row;
+}
+
+.ParteCentroCostosProduccion{
+  width: 100%;
+  height: 60%;
+  padding: 2%;
+  margin-bottom: 10px;
+  display: flex;
+  align-items:center;
+  justify-content:space-around;
+  flex-direction: row;
+}
+
+.TablaInformacionPropuesta {
+  padding-top: 15px;
+  margin-bottom: 5px;
+  width: 100%;
+  height: 30%;
+  background-color: rgb(238,238,238, 0.5);
+  border-radius: 10px;
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.registroCC{
+  opacity: 10;
+  width: 100%;
+  text-align: center;
+  /* margin: 0px 0px 2px 4px; */
+}
+
+table {
+  width: 94%;
+  border-collapse: separate; /* Cambia a separate para aplicar border-radius */
+  border-spacing: 0; /* Elimina el espacio entre celdas */
+  border-radius: 10px; /* Ajusta el valor según el redondeo deseado */
+  overflow: hidden; /* Asegura que el contenido se ajuste dentro del border-radius */
+  font-size: 13px;
+}
+
+th, td {
+  border: 1 solid #ddd;
+  padding: 8px;
+  text-align: justify;
+}
+
+th {
+  background-color: rgba(51, 51, 51, 0.8);
+  color: white;
+  font-size: 12px; /* Tamaño de fuente menor para encabezados */
+}
+
+td {
+  background-color: #f4f4f4;
+  font-size: 11px; /* Tamaño de fuente menor para celdas de datos */
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  table {
+    font-size: 12px; /* Ajusta el tamaño de la fuente según el tamaño de pantalla */
+  }
+  th, td {
+    padding: 6px;
+  }
+}
+
+.divCentroCostos1, .divCentroCostos2{
+  width: 33%;
+  height: 100%;
+  display: flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction: column;
+}
+
+.divBotonesCentroCostos{
+  width: 28%;
+  height: 100%;
+  display: flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction: column;
+}
+
+.BotonCC {
+  width: 80%;
+  height: 15%;
+  margin-bottom: 10%;
+  border-radius: 10px;
+  background-color: #ff924a;  background-color: #ff924a;
+  box-shadow: 1px 1px 10px 1px #b2b1b1;
+  color: #fff;
+  font-size: 14px;
+  text-align: center; /* Centra el texto horizontalmente */
+  line-height: 100%; /* Ajusta el alto de línea para mejorar la alineación vertical */
+  display: flex; /* Usa flexbox para centrar el texto verticalmente */
+  justify-content: center; /* Centra el texto horizontalmente en el contenedor flex */
+  align-items: center; /* Centra el texto verticalmente en el contenedor flex */
+}
+
+.registroCC {
+  background-color: rgba(51, 51, 51, 0.3); /* Color de fondo por defecto con opacidad */
+  color: #fff;
+  padding: 10px;
+  font-size: 13px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease; /* Transición suave */
+}
+
+.registroCC:hover,
+.registroCC:focus {
+  background-color: rgba(51, 51, 51, 0.4); /* Color de fondo con mayor opacidad cuando se pasa el ratón o tiene el foco */
+}
+
+.divBotonesCentroCostos1{
+  width: 30%;
+  height: 100%;
+}
+.InputCentroCostos{
+  margin-bottom: 10px;
+}
+
+iframe {
+  width: 100%; /* Haz que el iframe tome todo el ancho del contenedor */
+  height: 100%;
+  border: none; /* Quita el borde del iframe */
+  border-radius: 10px; /* Bordes redondeados si es necesario */
+}
+
+.ResultadosCentroCostos{
+  width: 100%;
+  height: 80%;
+  background-color: rgba(240, 110, 24, 0.25);
+  /* box-shadow: 0px 0px 10px 2px #FD5B00; */
+  box-shadow: 1px 1px 8px 1px #ff8d4c; 
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-direction: column;
+  overflow: auto;
+  border-radius: 10px;
+}
+
+.InformacionCliente, .InformacionPropuesta{
+  width: 50%;
+  height: 100%;
+  font-weight:600;
+  display: flex;
+  align-items:center;
+  justify-content:flex-start;
+  flex-direction: row;
+}
+
+.InformacionProducccion{
+  width: 100%;
+  height: 100%;
+  font-weight:600;
+  display: flex;
+  align-items:center;
+  justify-content:flex-start;
+  flex-direction: row;
+}
+
+.InformacionPropuestaOT{
+  width: 50%;
+  height: 100%;
+  font-weight:600;
+  margin: 10px 0px 0px 0px;
+  display: flex;
+  align-items:center;
+  justify-content:flex-start;
+  flex-direction: row;
+  display: block;
+}
+
+.BotonesInteraccion {
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-direction: row;
+}
+
+.BotonesInteraccion > div {
+  margin-left: auto;
+}
+
+.BotonesFormulario {
+  width: 40px; 
+  height: 35px;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centra el ícono cuando no hay texto */
+  padding: 0; /* Sin padding para ajustarse solo al ícono inicialmente */
+  margin-bottom: 10px;
+  border-radius: 5px;
+  color: #000;
+  box-shadow: 1px 1px 10px #6e6d6d;
+  border: none;
+  transition: background-color 1s ease, width 1s ease, padding 1s ease; /* Transiciones suaves */
+  cursor: pointer;
+  position: relative;
+  overflow: hidden; /* Oculta el texto inicialmente */
+  font-size: 13px;
+  font-weight: 100;
+}
+
+.BotonesFormulario img {
+  margin-right: 0; /* Sin margen inicialmente para que el ícono esté centrado */
+  transition: margin-right 1.5s ease; /* Transición para el margen del ícono */
+}
+
+.BotonesFormulario span {
+  margin-left: 8px; /* Espacio entre el ícono y el texto */
+  opacity: 0; /* Oculta el texto inicialmente */
+  white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+  transition: opacity 2.5s ease; /* Transición suave para la opacidad */
+  color: transparent; /* Mantén el color transparente para ocultar */
+  display: none; /* Oculta el texto inicialmente */
+}
+
+.BotonesFormulario:hover, .BotonesFormulario:focus {
+  background-color: rgb(211,84,0, 0.55);
+  box-shadow: 2px 2px 10px 2px #8a8a8a;
+  padding: 0 10px; /* Ajusta el padding al pasar el mouse o al hacer clic */
+  width: auto; /* Permite que el botón crezca para el texto */
+  box-shadow: 1px 1px 10px rgb(211,84,0, 0.55);
+}
+
+.BotonesFormulario:hover span, .BotonesFormulario:focus span {
+  opacity: 1; /* Muestra el texto */
+  color: #000; /* Establece el color del texto */
+  font-weight: 300;
+  display: inline-block; /* Mostramos el texto cuando se pasa el mouse */
+}
+
+.BotonesFormulario:hover svg, .BotonesFormulario:focus svg {
+  margin-right: 0px; /* Añade margen al ícono cuando el texto esté visible */
+}
+
+form {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%; 
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.form-row_2{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.form-group {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.form-group:last-child {
+  margin-right: 0;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.titulo{
+  font-weight:600;
+  margin: -1% 0 2% 0%;
+  font-size: 17px;
+}
+
+/* General para inputs y textareas */
+input,
+textarea,
+select {
+  width: 100%; /* Ancho completo del contenedor */
+  padding: 8px; /* Espaciado interno */
+  border-radius: 4px; /* Bordes redondeados */
+  box-sizing: border-box; /* Incluye padding y border en el ancho total */
+  border: 1px solid rgb(255, 146, 74, 0.75); /* Borde */
+  font-size: 12px; /* Tamaño de fuente */
+  background-color: #f3f3f3;
+}
+
+/* Contenedor para el textarea con scroll */
+.scrollable-container {
+  width: 100%; /* Ancho completo del contenedor */
+  max-height: 100px; /* Altura máxima */
+  overflow-y: auto; /* Barra de desplazamiento vertical cuando sea necesario */
+  border-radius: 4px; /* Bordes redondeados */
+  box-sizing: border-box; /* Incluye padding y border en el ancho total */
+  background-color: #f3f3f3;
+}
+
+/* Estilo específico para el textarea dentro del contenedor scrollable */
+.scrollable-container textarea {
+  width: 100%; /* Ancho completo del contenedor */
+  height: auto; /* Ajusta la altura automáticamente */
+  max-height: 100%; /* Limita la altura máxima según el contenedor */
+  resize: none; /* Desactiva el redimensionamiento manual */
+  overflow: auto; /* Oculta las barras de desplazamiento internas */
+  background-color: #f3f3f3;
+}
+
+input:focus, textarea:focus , select:focus{
+  outline: none;
+  border-color: #ac4400;
+}
+
+/* Contenedor del botón y del mensaje */
+.custom-file-container {
+  display: flex;
+  align-items: center;
+  border: 1px solid  rgb(255,146,74, 1);;
+  border-radius: 4px;
+  background-color: #fff; /* Fondo común */
+  width: 100%; /* Asegura que ocupe el ancho total del formulario */
+  height: 34px;
+}
+
+/* Estilos del botón */
+.custom-file-upload {
+  padding: 6px 12px;
+  margin: auto;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: rgb(255,146,74, 1);
+  color: white; /* Color del texto del botón */
+  margin-right: 1px; /* Separación entre el botón y el mensaje */
+}
+
+/* Efecto hover para el botón */
+.custom-file-upload:hover {
+  background-color: #ff6f0f; /* Efecto hover */
+  border-color: #ada;
+}
+
+/* Estilos del mensaje */
+.file-name {
+  color:#000;
+  white-space:wrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Para cortar nombres largos de archivos */
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.ParteFormulario{
+  width: 100%;
+  height: 75%;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.ParteFormularioOT{
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ParteFormularioOT-Agregar{
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.ParteInferiorFormulario{
+  width: 100%;
+  height: 12%;
+  background-color: #0c3e84;
+}
+
+/* UserItem.css */
+.user-item , .propuesta-item, .productor-item{
+  border: none;
+  border-radius: 4px; /* Bordes redondeados */
+  padding: 10px; /* Espaciado interno */
+  margin-bottom: 5px; /* Espaciado entre los elementos */
+  background-color: transparent; /* Fondo transparente por defecto */
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Suaviza la transición del color de fondo */
+  background-color: rgb(238, 238, 238); /* Color de fondo para los elementos impares */
+}
+
+
+.user-item.selected , .propuesta-item.selected, .productor-item.selected, .productor-item:hover{
+  background-color: #d3d3d3; /* Color de fondo para los elementos seleccionados */
+} 

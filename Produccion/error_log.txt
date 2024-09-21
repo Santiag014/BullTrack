@@ -1,0 +1,7 @@
+[2024-09-20 17:34:17] Error: No se recibió un ID de usuario válido.
+[2024-09-20 17:34:18] Error: No se especificó el tipo de solicitud (div o table).
+[2024-09-20 17:34:22] Error: No se especificó el tipo de solicitud (div o table).
+[2024-09-20 17:34:23] Error: No se especificó el tipo de solicitud (div o table).
+[2024-09-20 17:34:24] Error: No se especificó el tipo de solicitud (div o table).
+[2024-09-20 17:34:25] Error: No se especificó el tipo de solicitud (div o table).
+[2024-09-20 17:34:26] Error: No se especificó el tipo de solicitud (div o table).
