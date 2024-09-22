@@ -1,3 +1,24 @@
+<?php
+session_start();
+
+// Verificar si el usuario ha iniciado sesión
+if (isset($_SESSION['id'])) {
+    $id = $_SESSION['id'];
+    $NombreUsuario = $_SESSION['NombreUsuario'];
+    $CorreoUsuario = $_SESSION['CorreoUsuario'];
+    $rol_user = $_SESSION['NombreRol'];
+    $id_rol = $_SESSION['id_rol'];
+
+    // Almacenar los datos del usuario en la sesión
+    $_SESSION['datos_usuario'] = array(
+        'id' => $id,
+        'nombre' => $NombreUsuario,
+        'correo' => $CorreoUsuario,
+        'rol_user' => $rol_user,
+    );
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +29,7 @@
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
 </head>
 <body>
+    
     <div class="background-image"></div>
     <div class="GridContanier">
         <div class="GridInformacionUsuario">
@@ -18,24 +40,23 @@
                 <div class="FotoUsuarioDashboard">
                     <div class="TipoGrafia_App"> <strong>BullTrack</strong> <br/> App Seguimiento Interno</div>
                     <img src="../Media/fotoPerfil.jpg" alt="FotoBullMarketing" class="logo_image_Dashboard">
-                    <div class="TipoGrafia">Nombre Del Usuario</div>
-                    <div class="TipoGrafia">Cargo</div>
-                    <div class="TipoGrafia">Rol</div>    
+                    <div class="TipoGrafia"><?php echo $NombreUsuario; ?></div>
+                    <div class="TipoGrafia"><?php echo $rol_user; ?></div>   
                 </div>
                 <div class="InformacionModulos">
-                    <div class="ModulosDash" onclick="RedirigirHome()">
+                    <div class="ModulosDash" onclick="RedirigirHome(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                         <img src="../Media/Iconos/Home.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Home</span>
-                      </div>
-                    <div class="ModulosDash" onclick="ContactosCRM()">
+                    </div>
+                    <div class="ModulosDash" onclick="ContactosCRM(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                         <img src="../Media/Iconos/User.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Contactos CRM</span>
                     </div>
-                    <div class="ModulosDash" onclick="RedirigirPropuestas()">
+                    <div class="ModulosDash" onclick="RedirigirPropuestas(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                         <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Propuestas</span>
                     </div>
-                    <div class="ModulosDash" onclick="RedirigirAvancesOT()">
+                    <div class="ModulosDash" onclick="RedirigirAvancesOT(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                         <img src="../Media/Iconos/Avances.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Avances OT</span>
                     </div>
@@ -73,6 +94,7 @@
             </div>
         </div>
     </div>
-    <script src="./Funcionalidad-Backend/FuncionalidadComercial.js"></script>
+    <script src="./Funcionalidad/FuncionalidadComercial.js"></script> 
+     <!-- <script src="../index.php"> </script> -->
 </body>
 </html>

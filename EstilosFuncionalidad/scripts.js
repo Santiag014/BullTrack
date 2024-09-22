@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 password: passwordInput.value
             });
 
-            // Redireccionar a la página de Dashboard
-            window.location.href = '../Comercial/DashboardComercial.php';
+            // // Redireccionar a la página de Dashboard
+            // window.location.href = '../Comercial/DashboardComercial.php';
         }
     });
 

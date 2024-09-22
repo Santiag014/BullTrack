@@ -1,5 +1,5 @@
     // Redireccion Informacion Usuario
-    function RedirigirLogin() { window.location.href = '/'; }
+    function RedirigirLogin() { window.location.href = '../../logout.php'; }
     function RedirigirHome() { window.location.href = '../../Comercial/DashboardComercial.php'; }
     function ContactosCRM() { window.location.href = '../../Comercial/ContactosCRMComercial.php'; }
     function RedirigirPropuestas() { window.location.href = '../../Comercial/PropuestasComercial.php'; }

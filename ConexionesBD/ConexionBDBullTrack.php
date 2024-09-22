@@ -12,7 +12,4 @@ $conexion_bull = new mysqli($host, $usuario, $password, $base_datos);
 if ($conexion_bull->connect_error) {
     die("Error de conexión: " . $conexion_bull->connect_error);
 }
-
-// Si la conexión es exitosa, puedes continuar con tus consultas
-echo "Conexión exitosa a la base de datos.";
 ?>
