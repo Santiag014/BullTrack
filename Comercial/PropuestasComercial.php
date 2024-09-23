@@ -447,100 +447,6 @@ if (isset($_SESSION['id'])) {
 
 
 <!-- <script>
-    // Asignar Si Necesita OT
-    document.getElementById('editarBtn').addEventListener('click', () => alternarEstado('editarBtn'));
-    document.getElementById('agregarBtn').addEventListener('click', () => alternarEstado('agregar'));
-    document.getElementById('eliminarBtn').addEventListener('click', () => alternarEstado('eliminar'));
-    document.getElementById('SelectUser').addEventListener('click', () => selectUser());
-
-    const editarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(1)');
-    const agregarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(2)');
-    const eliminarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(3)');
-
-    const formPropuestas = document.querySelectorAll('.ParteFormulario input, .ParteFormulario select');
-    const formInicial = document.getElementsByClassName('ParteFormulario')[0]; 
-    const formSelectUsers = document.getElementsByClassName('SelectUserPropuesta')[0]; 
-    const formOT = document.querySelectorAll('.ParteFormularioOT-Agregar input, .ParteFormularioOT-Agregar select');
-
-    const necesidadOTSelect = document.getElementById('NecesidadOT');
-    const parteFormularioOT = document.querySelector('.ParteFormularioOT-Agregar');
-    const parteFormularioOTFields = parteFormularioOT.querySelectorAll('input, select, textarea');
-
-    // Variable para rastrear el estado de los campos
-    let fieldsEnabled = false;
-    let isAddMode = false;
-    let SelectUser = true;
-
-    function toggleAddMode() {
-        isAddMode = !isAddMode;
-        formInicial.style.display = isAddMode ? 'none' : 'block';
-        formSelectUsers.style.display = isAddMode ? 'block' : 'none';
-    }
-
-    function selectUser() {
-        SelectUser = !SelectUser;
-        formInicial.style.display = SelectUser ? 'block' : 'none';
-        formSelectUsers.style.display = SelectUser ? 'none' : 'block';
-    }
-
-    function toggleFormFields() {
-        fieldsEnabled = !fieldsEnabled;
-
-        formPropuestas.forEach(field => {
-            field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('readonly', 'readonly');
-            field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('disabled', 'disabled');
-        });
-
-        formOT.forEach(field => {
-            field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('readonly', 'readonly');
-            field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('disabled', 'disabled');
-        });
-
-        toggleParteFormularioOT(); // Llamar a la función para actualizar el estado de OT
-    }
-
-    function toggleParteFormularioOT() {
-        if (necesidadOTSelect && parteFormularioOT) {
-            const value = necesidadOTSelect.value.toLowerCase();
-
-            if (value === 'si') {
-                parteFormularioOT.style.display = 'block';
-                parteFormularioOTFields.forEach(field => {
-                    field.removeAttribute('readonly');
-                    field.removeAttribute('disabled');
-                });
-            } else {
-                parteFormularioOT.style.display = 'none';
-                parteFormularioOTFields.forEach(field => {
-                    field.setAttribute('readonly', 'readonly');
-                    field.setAttribute('disabled', 'disabled');
-                });
-            }
-        }
-    }
-
-    // Llamar a la función cuando cambie el valor del select
-    necesidadOTSelect.addEventListener('change', toggleParteFormularioOT);
-
-    editarButton.addEventListener('click', toggleFormFields);
-    
-    const selectUserButton = document.getElementById('SelectUser'); // Asegúrate de que este ID exista en el HTML
-    selectUserButton.addEventListener('click', selectUser);
-
-    agregarButton.addEventListener('click', () => {
-        toggleFormFields();
-        toggleAddMode();
-    });
-
-    eliminarButton.addEventListener('click', () => {
-        // Add logic for the "Delete" button if needed
-    });
-
-    // Initial setup: disable fields on page load
-    disableFormFields();
-</script> -->
-
-<script>
    const estados = {
     editar: {
         iconoOriginal: '../Media/Iconos/editar.png',
@@ -610,9 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('eliminarBtn').addEventListener('click', () => alternarEstado('eliminarBtn'));
 });
 
-
-
-</script>
+</script> -->
 
 <script src="./Funcionalidad/FuncionalidadComercial.js"></script> 
 

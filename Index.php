@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($correoUser !== null && $passwordUser !== null) {
 
         // Consulta a la BD para verificar las credenciales
-        $consultaLogin = "SELECT * FROM Usuarios JOIN Roles ON Usuarios.id_rol = Roles.id WHERE correoUsuario = '$correoUser' AND PasswordUsuario = '$passwordUser'" ;
+        $consultaLogin = "SELECT Usuarios.id, Usuarios.NombreUsuario, Usuarios.CorreoUsuario, Usuarios.PasswordUsuario, Usuarios.id_rol, Usuarios.id_CRM, Roles.NombreRol FROM Usuarios JOIN Roles ON Usuarios.id_rol = Roles.id WHERE correoUsuario = '$correoUser' AND PasswordUsuario = '$passwordUser'" ;
         $resultadoConsultaLogin = $conexion_bull->query($consultaLogin);
 
         // Validar el resultado de la consulta
@@ -75,6 +75,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['CorreoUsuario'] = $row['CorreoUsuario'];
             $_SESSION['id_rol'] = $row['id_rol'];
             $_SESSION['NombreRol'] = $row['NombreRol'];
+            $_SESSION['id_CRM'] = $row['id_CRM'];
+            $_SESSION['id_user_bulltrack'] = $row['id'];
 
             var_dump($_SESSION);
             // Redirigir según el rol del usuario
