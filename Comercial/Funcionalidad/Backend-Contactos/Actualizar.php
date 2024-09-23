@@ -63,8 +63,8 @@
 // echo json_encode($response);
 
 // Incluir archivos de conexión a la base de datos
-include '../../ConexionesBD/ConexcionDBcrm.php';
-include '../../ConexionesBD/ConexionBDBullTrack.php';
+include '../../../ConexionesBD/ConexcionDBcrm.php';
+include '../../../ConexionesBD/ConexionBDBullTrack.php';
 
 // Iniciar sesión y obtener datos del usuario
 session_start();

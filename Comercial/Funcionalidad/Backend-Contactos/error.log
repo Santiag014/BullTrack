@@ -1,0 +1,5 @@
+[23-Sep-2024 18:02:00 UTC] PHP Warning:  Undefined variable $conexion in C:\Users\SANTIAGO\OneDrive\Desktop\BullMarketing\BullTrack\Comercial\Funcionalidad\Backend-Contactos\Actualizar.php on line 103
+[23-Sep-2024 18:02:00 UTC] PHP Fatal error:  Uncaught Error: Call to a member function begin_transaction() on null in C:\Users\SANTIAGO\OneDrive\Desktop\BullMarketing\BullTrack\Comercial\Funcionalidad\Backend-Contactos\Actualizar.php:103
+Stack trace:
+#0 {main}
+  thrown in C:\Users\SANTIAGO\OneDrive\Desktop\BullMarketing\BullTrack\Comercial\Funcionalidad\Backend-Contactos\Actualizar.php on line 103

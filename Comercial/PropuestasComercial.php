@@ -26,7 +26,7 @@ if (isset($_SESSION['id'])) {
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
-    <!-- <script src="./Funcionalidad-Backend/FuncionalidadComercial.js" defer></script> -->
+    <script src="./Funcionalidad/FuncionalidadComercial.js" defer></script>
      
 </head>
 <body>
@@ -83,22 +83,22 @@ if (isset($_SESSION['id'])) {
                                     <h3>Información de Propuesta</h3>
                                 </div>
                                 <div class="BotonesInteraccion">
-                                    <button class="BotonesFormulario" id="editarBtn">
+                                    <button class="BotonesFormulario" id="editarPropuestasBtn">
                                         <img src="../Media/Iconos/editar.png" alt="local-icon" width="20" height="20" class="">
                                         <span>Editar</span>
                                     </button>
-                                    <button class="BotonesFormulario"  id="agregarBtn">
+                                    <button class="BotonesFormulario"  id="agregarPropuestasBtn">
                                         <img src="../Media/Iconos/Agregar.png" alt="local-icon" width="20" height="20" class="">
                                         <span>Agregar</span>
                                     </button>
-                                    <button class="BotonesFormulario"  id="eliminarBtn">
+                                    <button class="BotonesFormulario"  id="eliminarPropuestasBtn">
                                         <img src="../Media/Iconos/eliminar.png" alt="local-icon" width="20" height="20" class="">
                                         <span>Eliminar</span>
                                     </button>
                                 </div>
                             </div>
                                     
-                            <form class="ParteFormulario" method="post">
+                            <form class="x| " method="post">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="NIT">N.I.T</label>
@@ -518,6 +518,125 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </script> -->
 
-<script src="./Funcionalidad/FuncionalidadComercial.js"></script> 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOM completamente cargado.');
+    
+        document.getElementById('editarBtn').addEventListener('click', () => {
+            console.log('Botón Editar presionado.');
+            alternarEstado('editarBtn');
+        });
+        document.getElementById('agregarBtn').addEventListener('click', () => {
+            console.log('Botón Agregar presionado.');
+            alternarEstado('agregar');
+        });
+        document.getElementById('eliminarBtn').addEventListener('click', () => {
+            console.log('Botón Eliminar presionado.');
+            alternarEstado('eliminar');
+        });
+        document.getElementById('SelectUser').addEventListener('click', () => {
+            console.log('Botón Seleccionar Usuario presionado.');
+            selectUser();
+        });
+    
+        const editarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(1)');
+        const agregarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(2)');
+        const eliminarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(3)');
+    
+        const formPropuestas = document.querySelectorAll('.ParteFormulario input, .ParteFormulario select');
+        const formInicial = document.getElementsByClassName('ParteFormulario')[0]; 
+        const formSelectUsers = document.getElementsByClassName('SelectUserPropuesta')[0]; 
+        const formOT = document.querySelectorAll('.ParteFormularioOT-Agregar input, .ParteFormularioOT-Agregar select');
+    
+        const necesidadOTSelect = document.getElementById('NecesidadOT');
+        const parteFormularioOT = document.querySelector('.ParteFormularioOT-Agregar');
+        const parteFormularioOTFields = parteFormularioOT.querySelectorAll('input, select, textarea');
+    
+        // Variable para rastrear el estado de los campos
+        let fieldsEnabled = false;
+        let isAddMode = false;
+        let SelectUser = true;
+    
+        function toggleAddMode() {
+            isAddMode = !isAddMode;
+            console.log(`Modo Añadir: ${isAddMode}`);
+            formInicial.style.display = isAddMode ? 'none' : 'block';
+            formSelectUsers.style.display = isAddMode ? 'block' : 'none';
+        }
+    
+        function selectUser() {
+            SelectUser = !SelectUser;
+            console.log(`Seleccionar Usuario: ${SelectUser}`);
+            formInicial.style.display = SelectUser ? 'block' : 'none';
+            formSelectUsers.style.display = SelectUser ? 'none' : 'block';
+        }
+    
+        function toggleFormFields() {
+            fieldsEnabled = !fieldsEnabled;
+            console.log(`Campos habilitados: ${fieldsEnabled}`);
+    
+            formPropuestas.forEach(field => {
+                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('readonly', 'readonly');
+                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('disabled', 'disabled');
+            });
+    
+            formOT.forEach(field => {
+                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('readonly', 'readonly');
+                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('disabled', 'disabled');
+            });
+    
+            toggleParteFormularioOT(); // Llamar a la función para actualizar el estado de OT
+        }
+    
+        function toggleParteFormularioOT() {
+            if (necesidadOTSelect && parteFormularioOT) {
+                const value = necesidadOTSelect.value.toLowerCase();
+                console.log(`Valor Necesidad OT: ${value}`);
+    
+                if (value === 'si') {
+                    parteFormularioOT.style.display = 'block';
+                    parteFormularioOTFields.forEach(field => {
+                        field.removeAttribute('readonly');
+                        field.removeAttribute('disabled');
+                    });
+                    console.log('Formulario OT habilitado.');
+                } else {
+                    parteFormularioOT.style.display = 'none';
+                    parteFormularioOTFields.forEach(field => {
+                        field.setAttribute('readonly', 'readonly');
+                        field.setAttribute('disabled', 'disabled');
+                    });
+                    console.log('Formulario OT deshabilitado.');
+                }
+            }
+        }
+    
+        // Llamar a la función cuando cambie el valor del select
+        necesidadOTSelect.addEventListener('change', toggleParteFormularioOT);
+    
+        editarButton.addEventListener('click', () => {
+            console.log('Botón Editar clicado.');
+            toggleFormFields();
+        });
+    
+        const selectUserButton = document.getElementById('SelectUser');
+        selectUserButton.addEventListener('click', selectUser);
+    
+        agregarButton.addEventListener('click', () => {
+            console.log('Botón Agregar clicado.');
+            toggleAddMode();
+        });
+    
+        eliminarButton.addEventListener('click', () => {
+            console.log('Botón Eliminar clicado.');
+            // Add logic for the "Delete" button if needed
+        });
+    
+        // Initial setup: disable fields on page load
+        disableFormFields();
+        console.log('Campos deshabilitados al cargar la página.');
+    });
+
+</script>
 
 </html>

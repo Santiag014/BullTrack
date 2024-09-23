@@ -1,7 +1,7 @@
 <?php
 
-include '../../ConexionesBD/ConexcionDBcrm.php'; // Conexión para la primera base de datos
-include '../../ConexionesBD/ConexionBDBullTrack.php'; // Conexión para la segunda base de datos
+include '../../../ConexionesBD/ConexcionDBcrm.php';
+include '../../../ConexionesBD/ConexionBDBullTrack.php';
 
 session_start();
 

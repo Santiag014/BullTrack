@@ -83,6 +83,7 @@ if ($resultado) {
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadContactos.js" defer></script> 
 </head>
 <body>
     <div class="background-image" style="background-image: url(../Media/FonfoDash.jpg);"></div>
@@ -254,7 +255,6 @@ if ($resultado) {
             </div>
         </div>
     </div>
-    <script src="./Funcionalidad/FuncionalidadComercial.js"></script> 
 </body>
 </html>
 

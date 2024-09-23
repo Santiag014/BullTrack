@@ -1,6 +1,6 @@
 <?php
-include '../../ConexionesBD/ConexcionDBcrm.php';
-include '../../ConexionesBD/ConexionBDBullTrack.php';
+include '../../../ConexionesBD/ConexcionDBcrm.php';
+include '../../../ConexionesBD/ConexionBDBullTrack.php';
 
 $response = array('success' => false, 'message' => '');
 
