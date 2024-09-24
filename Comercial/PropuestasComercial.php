@@ -8,6 +8,7 @@ if (isset($_SESSION['id'])) {
     $CorreoUsuario = $_SESSION['CorreoUsuario'];
     $rol_user = $_SESSION['NombreRol'];
     $id_rol = $_SESSION['id_rol'];
+    $id_CRM = $_SESSION['id_CRM'];
 
     // Almacenar los datos del usuario en la sesión
     $_SESSION['datos_usuario'] = array(
@@ -17,6 +18,133 @@ if (isset($_SESSION['id'])) {
         'rol_user' => $rol_user,
     );
 }
+// Consulta para iterar por Contactos de CRM
+include '../ConexionesBD/ConexcionDBcrm.php';
+// Consulta para iterar por Contactos de BullTrack
+include '../ConexionesBD/ConexionBDBullTrack.php';
+
+// Consulta para obtener contactos de CRM
+$sql = "SELECT * FROM contactos WHERE id_user = $id_CRM";
+$resultado = mysqli_query($conexion, $sql);
+
+$info_completa = []; // Asegúrate de inicializar el array
+
+if ($resultado) {
+    if (mysqli_num_rows($resultado) > 0) {
+        while ($contacto = mysqli_fetch_assoc($resultado)) {
+            // Almacena el contacto original
+            $contacto_completo = $contacto;
+            
+            // Obtén el ID del contacto
+            $id_contacto = $contacto['id'];
+
+            // Consulta adicional en BullTrack para obtener información relacionada
+            $sql_1 = "SELECT      
+                SeguimientoComercial.id,
+                SeguimientoComercial.id_user,
+                SeguimientoComercial.id_unidadNegocio,
+                SeguimientoComercial.dateCreated,
+                SeguimientoComercial.nombreProyecto,
+                SeguimientoComercial.descripcionProyecto,
+                SeguimientoComercial.valorProyecto,
+                SeguimientoComercial.estadoPropuesta,
+                SeguimientoComercial.dateEntregaEconomicaCliente,
+                SeguimientoComercial.medioContacto1,
+                SeguimientoComercial.medioContacto2,
+                SeguimientoComercial.observacionProyecto1,
+                SeguimientoComercial.observacionProyecto2,
+                SeguimientoComercial.archivosAdjuntos,
+                SeguimientoComercial.id_contacto,
+                SeguimientoComercial.formatoProceso,
+                SeguimientoComercial.NecesitaOT,
+                SeguimientoComercial.CiudadesImpacto,
+                contacto_crm.nit_contacto, 
+                contacto_crm.razon_social_contacto,
+                contacto_crm.id_contactos_CRM,
+                SeguimientoCreativo.dateEntrega,
+                SeguimientoCreativo.nombreBrief,
+                SeguimientoCreativo.objetivoBrief,
+                SeguimientoCreativo.tipoEntregables,
+                SeguimientoCreativo.TipoCliente
+            FROM SeguimientoComercial 
+            JOIN contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
+            LEFT JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
+            WHERE contacto_crm.id_contactos_CRM = $id_contacto AND SeguimientoComercial.isDeleted = 0;";
+            
+            $resultado2 = mysqli_query($conexion_bull, $sql_1);
+
+            if ($resultado2) {
+                // Almacena toda la información de proyectos
+                $proyectos = [];
+                if (mysqli_num_rows($resultado2) > 0) {
+                    while ($proyecto = mysqli_fetch_assoc($resultado2)) {
+                        $proyectos[] = $proyecto; // Almacena cada proyecto en un array
+                    }
+                    // Agrega los proyectos al contacto completo
+                    $contacto_completo['proyectos'] = $proyectos;
+                } else {
+                    $contacto_completo['proyectos'] = []; // Si no hay proyectos, asigna un array vacío
+                }
+            } else {
+                // Manejo de error para la segunda consulta
+                $contacto_completo['error_bull'] = "Error en la consulta BullTrack: " . mysqli_error($conexion_bull);
+            }
+            
+            // Agrega el contacto completo al array
+            $info_completa[] = $contacto_completo;
+        }
+    } else {
+        $info_completa['error'] = "No se encontraron contactos para el usuario.";
+    }
+} else {
+    $info_completa['error'] = "Error en la consulta principal: " . mysqli_error($conexion);
+}
+
+
+// Array para almacenar todos los contactos
+$todos_contactos = [];
+
+// Consulta para obtener contactos de CRM
+$sql = "SELECT * FROM contactos WHERE id_user = $id_CRM";
+$resultado = mysqli_query($conexion, $sql);
+
+if ($resultado) {
+    if (mysqli_num_rows($resultado) > 0) {
+        while ($contacto = mysqli_fetch_assoc($resultado)) {
+            // Almacena el contacto original
+            $contacto_completo = $contacto;
+            
+            // Obtén el ID del contacto
+            $id_contacto = $contacto['id'];
+
+            // Consulta adicional en la base de datos BullTrack filtrando por ID del contacto
+            $sql2 = "SELECT contacto_crm.nit_contacto, contacto_crm.razon_social_contacto, contacto_crm.id_usuario, contacto_crm.id_contactos_CRM, contacto_crm.id FROM contacto_crm WHERE id_contactos_CRM = $id_contacto";
+            $resultado2 = mysqli_query($conexion_bull, $sql2);
+
+            if ($resultado2) {
+                if (mysqli_num_rows($resultado2) > 0) {
+                    // Aquí asumimos que solo se espera un contacto coincidente
+                    $contacto_bull = mysqli_fetch_assoc($resultado2);
+                    // Combina la información de ambas consultas
+                    $contacto_completo = array_merge($contacto, $contacto_bull);
+                }
+            } else {
+                // Manejo de error para la segunda consulta
+                $contacto_completo['error_bull'] = "Error en la consulta BullTrack: " . mysqli_error($conexion_bull);
+            }
+            
+            // Agrega el contacto completo al array
+            $todos_contactos[] = $contacto_completo;
+        }
+    } else {
+        $todos_contactos['error'] = "No se encontraron contactos para el usuario.";
+    }
+} else {
+    $todos_contactos['error'] = "Error en la consulta principal: " . mysqli_error($conexion);
+}
+
+//var_dump($todos_contactos); // Muestra todos los contactos completos
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,7 +154,8 @@ if (isset($_SESSION['id'])) {
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
-    <script src="./Funcionalidad/FuncionalidadComercial.js" defer></script>
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadPropuestas.js" defer></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
      
 </head>
 <body>
@@ -63,6 +192,7 @@ if (isset($_SESSION['id'])) {
                 </div>
             </div>
         </div>
+
         <div class="GridHeaderApp">
             <!-- Breadcrumbs component will be rendered here -->
         </div>
@@ -98,8 +228,13 @@ if (isset($_SESSION['id'])) {
                                 </div>
                             </div>
                                     
-                            <form class="x| " method="post">
+                            <form class="ParteFormularioPropuesta ">
                                 <div class="form-row">
+                                    <input type="hidden" id="id_Proyecto" name="id_Proyecto" value="">
+                                    <div class="form-group">
+                                        <label for="nombreCliente">Nombre Cliente</label>
+                                        <input type="text" id="NombreCliente" name="NombreCliente"  placeholder="Ingrese el Nombre del Cliente" readonly>
+                                    </div>
                                     <div class="form-group">
                                         <label for="NIT">N.I.T</label>
                                         <input type="text" id="NIT" name="NIT"  placeholder="Ingrese el N.I.T" readonly>
@@ -118,19 +253,35 @@ if (isset($_SESSION['id'])) {
                                         <label for="DescipcionProyecto">Descripción Proyecto</label>
                                         <input type="text" id="DescipcionProyecto" name="DescipcionProyecto" placeholder="Ingrese la Descipción del Proyecto" readonly>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="UnidadNegocio">Unidad de Negocio</label>
-                                        <input type="text" id="UnidadNegocio" name="UnidadNegocio" placeholder="Ingrese la Unidad de Negocios" readonly>
-                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
+                                        <label for="UnidadNegocio">Unidad de Negocio</label>
+                                        <select id="UnidadNegocio" name="UnidadNegocio" placeholder="Ingrese la Descipción del Proyecto" disabled>
+                                            <option value="Trade">Trade</option>
+                                            <option value="Logistica" selected>Logistica</option>
+                                            <option value="Digital" selected>Digital</option>
+                                            <option value="BTL" selected>BTL</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="FormatoProceso">Formato de Proceso</label>
-                                        <input type="text" id="FormatoProceso" name="FormatoProceso" placeholder="Ingrese el Formato de Proceso" readonly>
+                                        <select id="FormatoProceso" name="FormatoProceso" placeholder="Ingrese el Formato de Proceso" disabled>
+                                            <option value="Mantenimiento">Mantenimiento</option>
+                                            <option value="Generación de Propuesta" selected>Generación de Propuesta</option>
+                                            <option value="Licitación" selected>Licitación</option>
+                                            <option value="Asignación" selected>Asignación</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="estadoPropuesta">Estado de la Propuesta</label>
-                                        <input type="text" id="estadoPropuesta" name="estadoPropuesta" placeholder="Ingrese el Estado de la Propuesta" readonly>
+                                        <select id="estadoPropuesta" name="estadoPropuesta" placeholder="Ingrese el Formato de Proceso" disabled>
+                                            <option value="Propuesta">Propuesta</option>
+                                            <option value="Vendida" selected>Vendida</option>
+                                            <option value="No Aprobada" selected>No Aprobada</option>
+                                            <option value="Licitación" selected>Licitación</option>
+                                            <option value="Presentacion de Credenciales" selected>Presentación de Credenciales</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -142,9 +293,29 @@ if (isset($_SESSION['id'])) {
                                         <label for="ValorPropuesta">Valor de la Propuesta</label>
                                         <input type="number" id="ValorPropuesta" name="ValorPropuesta" placeholder="Ingrese el Valor de la Propuesta" readonly>
                                     </div>
+                                </div>
+                                <div class="form-row">
                                     <div class="form-group">
-                                        <label for="DateEntregaEconomica">Fecha Entrega Economica</label>
-                                        <input type="date" id="DateEntregaEconomica" name="DateEntregaEconomica" placeholder="Ingrese la Fecha de Entrega Económica" readonly>
+                                        <label for="FechaEntregaEconomica">Fecha Entrega Economica</label>
+                                        <input type="datetime-local" id="FechaEntregaEconomica" name="FechaEntregaEconomica" placeholder="Ingrese la Fecha de Entrega Económica" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Contacto_1">Contacto 1</label>
+                                        <input type ="text" id="Contacto_1" name="Contacto_1" placeholder="Ingrese los Medios de Contacto" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Contacto_2">Contacto 2</label>
+                                        <input type ="text" id="Contacto_2" name="Contacto_2" placeholder="Ingrese los Medios de Contacto" readonly>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="Observación_1">Observación 1</label>
+                                        <input type="text" id="Observación_1" name="Observación_1" placeholder="Ingrese una Observación" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="Observación_2">Observación 2</label>
+                                        <input type ="text" id="Observación_2" name="Observación_2" placeholder="Ingrese una Observación" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -154,9 +325,9 @@ if (isset($_SESSION['id'])) {
                                     </div>
                                     <div class="form-group">
                                         <label for="NecesidadOT">Necesita OT</label>
-                                        <select id="NecesidadOT" name="NecesidadOT" disabled>
-                                            <option value="si">Si</option>
-                                            <option value="no" selected>No</option>
+                                        <select id="NecesidadOTSelect" name="NecesidadOTSelect" disabled>
+                                            <option value="Si">Si</option>
+                                            <option value="No" selected>No</option>
                                         </select>
                                     </div>
                                 </div>
@@ -167,18 +338,40 @@ if (isset($_SESSION['id'])) {
                                 <div class="ContainerSelectUSer">
                                     <div class="CuadroFiltradoSelectUser">
                                         <div class="filterUserSelect">
-                                            <input type="text" placeholder="Nombre del Proyecto...">
+                                            <input type="text" placeholder="Nombre del Usuario...">
                                         </div>
                                         <div class="Lista_2">
                                             <ul>
-                                                <li>
-                                                    <div class="propuesta-item">
-                                                        <div class="NombreContacto" style="font-size: 14px; font-weight: 600;">Nombre Proyecto 1</div>
-                                                    </div>
-                                                    <div class="propuesta-item">
-                                                        <div class="NombreContacto" style="font-size: 14px; font-weight: 600;">Nombre Proyecto 1</div>
-                                                    </div>
-                                                </li>
+                                                <?php
+                                                if (!isset($todos_contactos['error'])) {
+                                                    foreach ($todos_contactos as $contacto) {
+                                                        echo '<li>';
+                                                        echo '<div class="user-item" data-id="' . htmlspecialchars($contacto["id"]) . '" '
+                                                            . 'data-id="' . htmlspecialchars($contacto["id"]) . '" '
+                                                            . 'data-nombre="' . htmlspecialchars($contacto["nombre"]) . '" '
+                                                            . 'data-apellido="' . htmlspecialchars($contacto["apellido"]) . '" '
+                                                            . 'data-cargo="' . htmlspecialchars($contacto["cargo"]) . '" '
+                                                            . 'data-celular="' . htmlspecialchars($contacto["celular"]) . '" '
+                                                            . 'data-correo="' . htmlspecialchars($contacto["correo"]) . '" '
+                                                            . 'data-empresa="' . htmlspecialchars($contacto["empresa"]) . '" '
+                                                            . 'data-ciudad="' . htmlspecialchars($contacto["ciudad"]) . '" '
+                                                            . 'data-direccion="' . htmlspecialchars($contacto["direccion"]) . '" '
+                                                            . 'data-web="' . htmlspecialchars($contacto["web"]) . '" '
+                                                            . 'data-nit="' . htmlspecialchars($contacto["nit_contacto"] ?? 'N/A') . '" '
+                                                            . 'data-razon-social="' . htmlspecialchars($contacto["razon_social_contacto"] ?? 'N/A') . '">';
+                                                    
+                                                        echo '<div class="NombreContacto" style="font-size: 14px; font-weight: 600;">' . htmlspecialchars($contacto["nombre"]) . ' ' . htmlspecialchars($contacto["apellido"]) . '</div>';
+                                                        echo '<div class="CargoContacto" style="font-size: 13px; color: #262626;">' . htmlspecialchars($contacto["cargo"]) . '</div>';
+                                                        echo '<div class="EmpresaContacto" style="font-size: 13px; color: #262626;">' . htmlspecialchars($contacto["empresa"]) . '</div>';
+                                                        
+                                                        echo '</div>';
+                                                        echo '</li>';
+                                                    }
+                                                    
+                                                } else {
+                                                    echo '<li>' . htmlspecialchars($todos_contactos['error']) . '</li>';
+                                                }
+                                                ?>
                                             </ul>
                                         </div>
                                     </div>
@@ -187,52 +380,53 @@ if (isset($_SESSION['id'])) {
                                         <div>
                                             <div class="form-row_2">
                                                 <div class="form-group">
-                                                    <label for="Nombre">Nombre</label>
-                                                    <input type="text" id="Nombre" name="Nombre"  placeholder="Ingrese el N.I.T" readonly>
+                                                    <input type="hidden" id="id_contacro_crm" name="id_contacro_crm" value="">
+                                                    <label for="Nombre">Nombre y Apellido</label>
+                                                    <input type="text" id="Nombre" name="Nombre"   readonly>
                                                 </div>
-                                                <div class="form-group">
-                                                    <label for="Apellido">Apellido</label>
-                                                    <input type="text" id="Apellido" name="Apellido" placeholder="Ingrese el N.I.T" readonly>
-                                                </div>
-                                            </div>
-                                            <div class="form-row_2">
                                                 <div class="form-group">
                                                     <label for="Cargo">Cargo</label>
-                                                    <input type="text" id="Cargo" name="Cargo"  placeholder="Ingrese el N.I.T" readonly>
+                                                    <input type="text" id="Cargo" name="Cargo"  readonly>
                                                 </div>
+                                            </div>
+                                            <div class="form-row_2">
                                                 <div class="form-group">
                                                     <label for="Celular">Celular</label>
-                                                    <input type="text" id="Celular" name="Celular" placeholder="Ingrese el N.I.T" readonly>
+                                                    <input type="text" id="Celular" name="Celular"  readonly>
                                                 </div>
-                                            </div>
-                                            <div class="form-row_2">
                                                 <div class="form-group">
                                                     <label for="Correo">Correo</label>
-                                                    <input type="text" id="Correo" name="Correo"  placeholder="Ingrese el N.I.T" readonly>
+                                                    <input type="text" id="Correo" name="Correo"  readonly>
                                                 </div>
+                                            </div>
+                                            <div class="form-row_2">
                                                 <div class="form-group">
                                                     <label for="Empresa">Empresa</label>
-                                                    <input type="text" id="Empresa" name="Empresa" placeholder="Ingrese el N.I.T" readonly>
+                                                    <input type="text" id="Empresa" name="Empresa"  readonly>
                                                 </div>
-                                            </div>
-                                            <div class="form-row_2">
                                                 <div class="form-group">
                                                     <label for="Ciudad">Ciudad</label>
-                                                    <input type="text" id="Ciudad" name="Ciudad"  placeholder="Ingrese el N.I.T" readonly>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="Web">Web</label>
-                                                    <input type="text" id="Web" name="Web" placeholder="Ingrese el N.I.T" readonly>
+                                                    <input type="text" id="Ciudad" name="Ciudad"  readonly>
                                                 </div>
                                             </div>
                                             <div class="form-row_2">
                                                 <div class="form-group">
-                                                    <label for="NIT">N.I.T</label>
-                                                    <input type="text" id="NIT" name="NIT"  placeholder="Ingrese el N.I.T" readonly>
+                                                    <label for="Web">Web</label>
+                                                    <input type="text" id="Web" name="Web"  readonly>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="RazonSocial">Razon Social</label>
-                                                    <input type="text" id="RazonSocial" name="RazonSocial" placeholder="Ingrese el N.I.T" readonly>
+                                                    <label for="Direccion">Dirección</label>
+                                                    <input type="text" id="Direccion" name="Direccion"  readonly>
+                                                </div>
+                                            </div>
+                                            <div class="form-row_2">
+                                                <div class="form-group">
+                                                    <label for="nit">N.I.T</label>
+                                                    <input type="text" id="nit" name="nit"   readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="razon_social">Razon Social</label>
+                                                    <input type="text" id="razon_social" name="razon_social" readonly>
                                                 </div>
                                             </div>
                                         </div>
@@ -246,29 +440,7 @@ if (isset($_SESSION['id'])) {
                                 </div>
                             </div> 
 
-                            <form class="ParteFormularioOT-Agregar">
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="LiderProyecto">Lider Proyecto</label>
-                                        <input 
-                                            type="text" 
-                                            id="LiderProyecto" 
-                                            name="LiderProyecto"   
-                                            readonly
-                                            placeholder="Lider del Proyecto"
-                                        />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="CreativoProyecto">Creativo</label>
-                                        <input 
-                                            type="text" 
-                                            id="CreativoProyecto" 
-                                            name="CreativoProyecto" 
-                                            readonly
-                                            placeholder="Creativos del Proyecto"
-                                        />
-                                    </div>
-                                </div>
+                            <form class="ParteFormularioOT_RegistroPropuestas" id="FormualrioOTRegistroPropuestas" style="display: none;">
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="Brief">Brief</label>
@@ -277,7 +449,7 @@ if (isset($_SESSION['id'])) {
                                             id="Brief" 
                                             name="Brief"  
                                             readonly
-                                            placeholder="Brief del Proyecto"
+                                            placeholder=" Ingrese el Nombre del Brief"
                                         />
                                     </div>
                                     <div class="form-group">
@@ -287,30 +459,18 @@ if (isset($_SESSION['id'])) {
                                             id="ObjetivosBrief" 
                                             name="ObjetivosBrief"
                                             readonly
-                                            placeholder="Objetivo del Brief"
-                                        />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="Link">Link</label>
-                                        <input 
-                                            type="text" 
-                                            id="Link" 
-                                            name="Link"
-                                            readonly
-                                            placeholder="Link del Proyecto"
+                                            placeholder="Ingrese el Objetivo del Brief"
                                         />
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="TipoCliente">Tipo de Cliente</label>
-                                        <input 
-                                            type="text" 
-                                            id="TipoCliente" 
-                                            name="TipoCliente"
-                                            readonly
-                                            placeholder="Tipo de Cliente"
-                                        />
+                                        <label for="tipoCliente">Tipo Cliente</label>
+                                        <select id="tipoCliente" name="tipoCliente"  placeholder="Ingrese la Descipción del Proyecto" disabled>
+                                            <option value="Cliente Potencial">Cliente Potencial</option>
+                                            <option value="Cliente Nuevo" selected>Cliente Nuevo</option>
+                                            <option value="Cliente Clave" selected>Cliente Clave</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="Entregables">Entregables</label>
@@ -322,121 +482,120 @@ if (isset($_SESSION['id'])) {
                                             placeholder="Entregables"
                                         />
                                     </div>
-                                </div>
-                                <div class="form-row">
                                     <div class="form-group">
-                                        <label for="DateEntregaComercial">Fecha Entrega Comercial</label>
+                                        <label for="dateEntregaCliente">Fecha Entrega Cliente</label>
                                         <input 
-                                            type="date" 
-                                            id="DateEntregaComercial" 
-                                            name="DateEntregaComercial"
+                                            type="datetime-local" 
+                                            id="dateEntregaCliente" 
+                                            name="dateEntregaCliente"
                                             readonly
-                                            placeholder="Fecha de Entrega Comercial"
+                                            placeholder="Ingrese la Fecha de Entrega al Cliente"
                                         />
                                     </div>
-                                    <div class="form-group">
-                                        <label for="DateFechaSocializacion">Fecha Socialización</label>
-                                        <input 
-                                            type="date" 
-                                            id="DateFechaSocializacion" 
-                                            name="DateFechaSocializacion"
-                                            readonly
-                                            placeholder="Fecha de Socialización"
-                                        />
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="DateEntregaLink">Fecha Entrega Link</label>
-                                        <input 
-                                            type="date" 
-                                            id="DateEntregaLink" 
-                                            name="DateEntregaLink"
-                                            readonly
-                                            placeholder="Fehca Entrga del Link"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="DatosAdicionales">Datos Adicionales</label>
-                                        <div class="custom-file-container">
-                                            <input 
-                                                type="file" 
-                                                id="ArchivosAdjuntosBrief" 
-                                                name="ArchivosAdjuntosBrief" 
-                                                style="display: none;"
-                                                placeholder="Datos Adicionales"
-                                            />
-                                            <span class="file-name" id="fileNameBrief">No se ha seleccionado ningún archivo</span>
-                                            <label for="ArchivosAdjuntosBrief" class="custom-file-upload">
-                                                Elegir archivo
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="Artes">Artes</label>
-                                        <div class="custom-file-container">
-                                            <input 
-                                                type="file" 
-                                                id="fileUpload" 
-                                                name="fileUpload" 
-                                                style="display: none;"
-                                                placeholder="Artes"
-                                            />
-                                            <span class="file-name" id="fileNameArtes">No se ha seleccionado ningún archivo</span>
-                                            <label for="fileUpload" class="custom-file-upload">
-                                                Elegir archivo
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                                </div>  
                             </form> 
                         </div>
                     </div>
+
+                    
                     <div class="ContactosCreados">
                         <div class="MostrarListaDesplegable">
                             <div class="InputFiltrar">
-                                <input type="text" placeholder="Nombre del Proyecto...">
+                                <input type="text" placeholder="Nombre del Proyecto..." id="nombreProyecto">
                             </div>
-                            <div  class="InputFiltrar_2">
-
+                            <div class="InputFiltrar_2" id="estadoPropuesta" placeholder="Estado Propuesta">
                                 <select style="margin-right: 4px;">
-                                    <option value="">Estado...</option>
-                                    <option value="activo">Activo</option>
-                                    <option value="inactivo">Inactivo</option>
-                                    <option value="pendiente">Pendiente</option>
+                                    <option value="">Estado Propuesta</option>
+                                    <option value="activo">Propuesta</option>
+                                    <option value="inactivo">Vendida</option>
+                                    <option value="pendiente">No Aprobada</option>
+                                    <option value="pendiente">Licitación</option>
+                                    <option value="pendiente">Presentación Credenciales</option>
                                 </select>
-
                                 <select style="margin-right: 0px;">
                                     <option value="">Cliente...</option>
                                     <option value="cliente1">Cliente 1</option>
                                     <option value="cliente2">Cliente 2</option>
                                     <option value="cliente3">Cliente 3</option>
                                 </select>     
-                                      
-                            </div>
-                            <div class="Lista">
+                            </div> 
+
+                            <div class="Lista" id="listaProyectos">
                                 <ul>
-                                    <li>
-                                        <div class="propuesta-item">
-                                            <div class="NombreContacto" style="font-size: 14px; font-weight: 600;">Nombre Proyecto 1</div>
-                                            <div class="CargoContacto" style="font-size: 13px; color: #262626;">En Producción</div>
-                                            <div class="EmpresaContacto" style="font-size: 13px; color: #262626;">14/01/2006</div>
-                                        </div>
+                                    <?php
+                                    // Verificar si la consulta se realizó correctamente
+                                    if (!empty($info_completa)) {
+                                        // Usar un bucle foreach para recorrer los contactos
+                                        foreach ($info_completa as $contacto) {
+                                            // Comprobar si hay proyectos
+                                            if (!empty($contacto['proyectos'])) {
+                                                // Iterar sobre cada proyecto
+                                                foreach ($contacto['proyectos'] as $fila) {
+                                                    echo '<li>';
+                                                    echo '<div class="propuesta-item data-estadoPropuesta="inactivo"" '
+                                                        . 'data-id_proyecto="' . htmlspecialchars($fila["id"]) . '" '
+                                                        . 'data-nombre-proyecto="' . htmlspecialchars($fila["nombreProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-userBull="' . htmlspecialchars($fila["id_user"] ?? 'N/A') . '" '
+                                                        . 'data-unidadNegocio="' . htmlspecialchars($fila["id_unidadNegocio"] ?? 'N/A') . '" '
+                                                        . 'data-fechaInicio="' . htmlspecialchars($fila["dateCreated"] ?? 'N/A') . '" '
+                                                        . 'data-descripcionProyecto="' . htmlspecialchars($fila["descripcionProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-valorProyecto="' . htmlspecialchars($fila["valorProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-estadoPropuesta="' . htmlspecialchars($fila["estadoPropuesta"] ?? 'N/A') . '" '
+                                                        . 'data-dateEntregaEconomicaCliente="' . htmlspecialchars($fila["dateEntregaEconomicaCliente"] ?? 'N/A') . '" '
+                                                        . 'data-medioContacto_1="' . htmlspecialchars($fila["medioContacto1"] ?? 'N/A') . '" '
+                                                        . 'data-medioContacto_2="' . htmlspecialchars($fila["medioContacto2"] ?? 'N/A') . '" '
+                                                        . 'data-observacionProyecto_1="' . htmlspecialchars($fila["observacionProyecto1"] ?? 'N/A') . '" '
+                                                        . 'data-observacionProyecto_2="' . htmlspecialchars($fila["observacionProyecto2"] ?? 'N/A') . '" '
+                                                        . 'data-linkArchivosAdjuntos="' . htmlspecialchars($fila["archivosAdjuntos"] ?? 'N/A') . '" '
+                                                        . 'data-formatoProceso="' . htmlspecialchars($fila["formatoProceso"] ?? 'N/A') . '" '
+                                                        . 'data-idCliente="' . htmlspecialchars($fila["idCliente"] ?? 'N/A') . '" '
+                                                        . 'data-isDeleted="' . htmlspecialchars($fila["isDeleted"] ?? 'N/A') . '" '
+                                                        . 'data-nitCliente="' . htmlspecialchars($fila["nit_contacto"] ?? 'N/A') . '" '
+                                                        . 'data-razonSocialCliente="' . htmlspecialchars($fila["razon_social_contacto"] ?? 'N/A') . '" '
+                                                        . 'data-nombreCliente="' . htmlspecialchars($contacto["nombre"] ?? 'N/A') . '" '
+                                                        . 'data-apellidoCliente="' . htmlspecialchars($contacto["apellido"] ?? 'N/A') . '" '
+                                                        . 'data-apellidoCliente="' . htmlspecialchars($contacto["apellido"] ?? 'N/A') . '" '
+                                                        . 'data-ciudadesImpacto="' . htmlspecialchars($fila["CiudadesImpacto"] ?? 'N/A') . '" '
+                                                        . 'data-NecesitaOT="' . htmlspecialchars($fila["NecesitaOT"] ?? 'N/A') . '" '
+                                                        . 'data-nombreBrief="' . htmlspecialchars($fila["nombreBrief"] ?? 'N/A') . '" '
+                                                        . 'data-objetivoBrief="' . htmlspecialchars($fila["objetivoBrief"] ?? 'N/A') . '" '
+                                                        . 'data-tipoEntregable="' . htmlspecialchars($fila["tipoEntregables"] ?? 'N/A') . '" '
+                                                        . 'data-tipoCliente="' . htmlspecialchars($fila["TipoCliente"] ?? 'N/A') . '" '
+                                                        . 'data-dateEntrega="' . htmlspecialchars($fila["dateEntrega"] ?? 'N/A') . '" '
+                                                        . '>';
 
-                                        <div class="propuesta-item">
-                                            <div class="NombreContacto" style="font-size: 14px; font-weight: 600;">Nombre Proyecto 2</div>
-                                            <div class="CargoContacto" style="font-size: 13px; color: #262626;">Finalizado</div>
-                                            <div class="EmpresaContacto" style="font-size: 13px; color: #262626;">14/01/2006</div>
-                                        </div>
+                                                    // Mostrar información del proyecto
+                                                    echo '<div class="NombreProyecto" id="NombreProyecto" style="font-size: 14px; font-weight: 600;">'
+                                                        . htmlspecialchars($fila["nombreProyecto"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    echo '<div class="ClienteProyecto"  style="font-size: 14px; font-weight: 600;">'
+                                                        . htmlspecialchars($contacto["nombre"] ?? 'No disponible') . '  ' 
+                                                        . htmlspecialchars($contacto["apellido"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    echo '<div class="NombreEmpresa" style="font-size: 14px; color: #262626;">'
+                                                        . htmlspecialchars($contacto["empresa"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    echo '<div class="EstadoProyecto" style="font-size: 13px; color: #262626;">'
+                                                        . htmlspecialchars($fila["estadoPropuesta"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    // echo '<div class="FechaInicio" style="Sfont-size: 9px; color: #262626;">'
+                                                    //     . htmlspecialchars($fila["dateCreated"] ?? 'No disponible') . '</div>';
 
-                                        <div class="propuesta-item">
-                                            <div class="NombreContacto" style="font-size: 14px; font-weight: 600;">Nombre Proyecto 3</div>
-                                            <div class="CargoContacto" style="font-size: 13px; color: #262626;">En Propuesta</div>
-                                            <div class="EmpresaContacto" style="font-size: 13px; color: #262626;">14/01/2006</div>
-                                        </div> 
-                                    </li>
+                                                    echo '</div>'; // Cerrar propuesta-item
+                                                    echo '</li>'; // Cerrar li
+                                                }
+                                            } else {
+                                                echo '<li>No hay proyectos para el contacto ' . htmlspecialchars($contacto['razon_social_contacto'] ?? 'No disponible') . '.</li>';
+                                            }
+                                        }
+                                    } else {
+                                        echo '<li>No se encontraron resultados.</li>';
+                                    }
+                                    ?>
                                 </ul>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
@@ -445,198 +604,8 @@ if (isset($_SESSION['id'])) {
     </div>
 </body>
 
+<style>
 
-<!-- <script>
-   const estados = {
-    editar: {
-        iconoOriginal: '../Media/Iconos/editar.png',
-        textoOriginal: 'Editar',
-        iconoModificado: '../Media/Iconos/guardar.png',
-        textoModificado: 'Guardar'
-    },
-    agregar: {
-        iconoOriginal: '../Media/Iconos/Agregar.png',
-        textoOriginal: 'Agregar',
-        iconoModificado: '../Media/Iconos/guardar.png',
-        textoModificado: 'Guardar'
-    },
-};
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('editarBtn').dataset.estado = 'original';
-    document.getElementById('agregarBtn').dataset.estado = 'original';
-    document.getElementById('eliminarBtn').dataset.estado = 'original';
-
-    function alternarEstado(btnId) {
-        const boton = document.getElementById(btnId);
-        const img = boton.querySelector('img');
-        const span = boton.querySelector('span');
-
-        alert(`Botón presionado: ${btnId}`);
-        alert(`Estado inicial: ${boton.dataset.estado}`);
-
-        if (btnId === 'editarBtn' || btnId === 'agregarBtn') {
-            const estadoActual = boton.dataset.estado;
-            alert(`Estado actual: ${estadoActual}`);
-
-            if (estadoActual === 'original') {
-                img.src = estados[btnId].iconoModificado;
-                span.textContent = estados[btnId].textoModificado;
-                boton.dataset.estado = 'guardar';
-                alert(`Estado cambiado a: guardar`);
-            } else {
-                img.src = estados[btnId].iconoOriginal;
-                span.textContent = estados[btnId].textoOriginal;
-                boton.dataset.estado = 'original';
-                alert(`Estado cambiado a: original`);
-            }
-        } else {
-            const estadoActual = boton.dataset.estado;
-            alert(`Estado actual: ${estadoActual} en eliminar`);
-
-            if (estadoActual === 'modificado') {
-                img.src = estados[btnId].iconoOriginal;
-                span.textContent = estados[btnId].textoOriginal;
-                boton.dataset.estado = 'original';
-                alert(`Estado cambiado a: original`);
-            } else {
-                img.src = estados[btnId].iconoModificado;
-                span.textContent = estados[btnId].textoModificado;
-                boton.dataset.estado = 'modificado';
-                alert(`Estado cambiado a: modificado`);
-            }
-        }
-    }
-
-    document.getElementById('editarBtn').addEventListener('click', () => {
-        console.log('Editar botón presionado');
-        alternarEstado('editarBtn');
-    });
-    document.getElementById('agregarBtn').addEventListener('click', () => alternarEstado('agregarBtn'));
-    document.getElementById('eliminarBtn').addEventListener('click', () => alternarEstado('eliminarBtn'));
-});
-
-</script> -->
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('DOM completamente cargado.');
-    
-        document.getElementById('editarBtn').addEventListener('click', () => {
-            console.log('Botón Editar presionado.');
-            alternarEstado('editarBtn');
-        });
-        document.getElementById('agregarBtn').addEventListener('click', () => {
-            console.log('Botón Agregar presionado.');
-            alternarEstado('agregar');
-        });
-        document.getElementById('eliminarBtn').addEventListener('click', () => {
-            console.log('Botón Eliminar presionado.');
-            alternarEstado('eliminar');
-        });
-        document.getElementById('SelectUser').addEventListener('click', () => {
-            console.log('Botón Seleccionar Usuario presionado.');
-            selectUser();
-        });
-    
-        const editarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(1)');
-        const agregarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(2)');
-        const eliminarButton = document.querySelector('.BotonesInteraccion .BotonesFormulario:nth-child(3)');
-    
-        const formPropuestas = document.querySelectorAll('.ParteFormulario input, .ParteFormulario select');
-        const formInicial = document.getElementsByClassName('ParteFormulario')[0]; 
-        const formSelectUsers = document.getElementsByClassName('SelectUserPropuesta')[0]; 
-        const formOT = document.querySelectorAll('.ParteFormularioOT-Agregar input, .ParteFormularioOT-Agregar select');
-    
-        const necesidadOTSelect = document.getElementById('NecesidadOT');
-        const parteFormularioOT = document.querySelector('.ParteFormularioOT-Agregar');
-        const parteFormularioOTFields = parteFormularioOT.querySelectorAll('input, select, textarea');
-    
-        // Variable para rastrear el estado de los campos
-        let fieldsEnabled = false;
-        let isAddMode = false;
-        let SelectUser = true;
-    
-        function toggleAddMode() {
-            isAddMode = !isAddMode;
-            console.log(`Modo Añadir: ${isAddMode}`);
-            formInicial.style.display = isAddMode ? 'none' : 'block';
-            formSelectUsers.style.display = isAddMode ? 'block' : 'none';
-        }
-    
-        function selectUser() {
-            SelectUser = !SelectUser;
-            console.log(`Seleccionar Usuario: ${SelectUser}`);
-            formInicial.style.display = SelectUser ? 'block' : 'none';
-            formSelectUsers.style.display = SelectUser ? 'none' : 'block';
-        }
-    
-        function toggleFormFields() {
-            fieldsEnabled = !fieldsEnabled;
-            console.log(`Campos habilitados: ${fieldsEnabled}`);
-    
-            formPropuestas.forEach(field => {
-                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('readonly', 'readonly');
-                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('disabled', 'disabled');
-            });
-    
-            formOT.forEach(field => {
-                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('readonly', 'readonly');
-                field[fieldsEnabled ? 'removeAttribute' : 'setAttribute']('disabled', 'disabled');
-            });
-    
-            toggleParteFormularioOT(); // Llamar a la función para actualizar el estado de OT
-        }
-    
-        function toggleParteFormularioOT() {
-            if (necesidadOTSelect && parteFormularioOT) {
-                const value = necesidadOTSelect.value.toLowerCase();
-                console.log(`Valor Necesidad OT: ${value}`);
-    
-                if (value === 'si') {
-                    parteFormularioOT.style.display = 'block';
-                    parteFormularioOTFields.forEach(field => {
-                        field.removeAttribute('readonly');
-                        field.removeAttribute('disabled');
-                    });
-                    console.log('Formulario OT habilitado.');
-                } else {
-                    parteFormularioOT.style.display = 'none';
-                    parteFormularioOTFields.forEach(field => {
-                        field.setAttribute('readonly', 'readonly');
-                        field.setAttribute('disabled', 'disabled');
-                    });
-                    console.log('Formulario OT deshabilitado.');
-                }
-            }
-        }
-    
-        // Llamar a la función cuando cambie el valor del select
-        necesidadOTSelect.addEventListener('change', toggleParteFormularioOT);
-    
-        editarButton.addEventListener('click', () => {
-            console.log('Botón Editar clicado.');
-            toggleFormFields();
-        });
-    
-        const selectUserButton = document.getElementById('SelectUser');
-        selectUserButton.addEventListener('click', selectUser);
-    
-        agregarButton.addEventListener('click', () => {
-            console.log('Botón Agregar clicado.');
-            toggleAddMode();
-        });
-    
-        eliminarButton.addEventListener('click', () => {
-            console.log('Botón Eliminar clicado.');
-            // Add logic for the "Delete" button if needed
-        });
-    
-        // Initial setup: disable fields on page load
-        disableFormFields();
-        console.log('Campos deshabilitados al cargar la página.');
-    });
-
-</script>
+</style>
 
 </html>

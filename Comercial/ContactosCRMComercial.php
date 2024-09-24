@@ -68,9 +68,6 @@ if ($resultado) {
 }
 
 //var_dump($todos_contactos); // Muestra todos los contactos completos
-// Cierra las conexiones a las bases de datos
-// mysqli_close($conexion);
-// mysqli_close($conexion_bull);
 
 ?>
 

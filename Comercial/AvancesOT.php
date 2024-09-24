@@ -8,6 +8,7 @@ if (isset($_SESSION['id'])) {
     $CorreoUsuario = $_SESSION['CorreoUsuario'];
     $rol_user = $_SESSION['NombreRol'];
     $id_rol = $_SESSION['id_rol'];
+    $id_CRM = $_SESSION['id_CRM'];
 
     // Almacenar los datos del usuario en la sesión
     $_SESSION['datos_usuario'] = array(
@@ -17,7 +18,104 @@ if (isset($_SESSION['id'])) {
         'rol_user' => $rol_user,
     );
 }
+
+
+// Consulta para iterar por Contactos de CRM
+include '../ConexionesBD/ConexcionDBcrm.php';
+// Consulta para iterar por Contactos de BullTrack
+include '../ConexionesBD/ConexionBDBullTrack.php';
+
+// Consulta para obtener contactos de CRM
+$sql = "SELECT * FROM contactos WHERE id_user = $id_CRM";
+$resultado = mysqli_query($conexion, $sql);
+
+$info_completa = []; // Asegúrate de inicializar el array
+
+if ($resultado) {
+    if (mysqli_num_rows($resultado) > 0) {
+        while ($contacto = mysqli_fetch_assoc($resultado)) {
+            // Almacena el contacto original
+            $contacto_completo = $contacto;
+            
+            // Obtén el ID del contacto
+            $id_contacto = $contacto['id'];
+
+            // Consulta adicional en BullTrack para obtener información relacionada
+            $sql_1 = "SELECT      
+                SeguimientoComercial.id,
+                SeguimientoComercial.id_user,
+                SeguimientoComercial.id_unidadNegocio,
+                SeguimientoComercial.dateCreated,
+                SeguimientoComercial.nombreProyecto,
+                SeguimientoComercial.descripcionProyecto,
+                SeguimientoComercial.valorProyecto,
+                SeguimientoComercial.estadoPropuesta,
+                SeguimientoComercial.dateEntregaEconomicaCliente,
+                SeguimientoComercial.medioContacto1,
+                SeguimientoComercial.medioContacto2,
+                SeguimientoComercial.observacionProyecto1,
+                SeguimientoComercial.observacionProyecto2,
+                SeguimientoComercial.archivosAdjuntos,
+                SeguimientoComercial.id_contacto,
+                SeguimientoComercial.formatoProceso,
+                SeguimientoComercial.NecesitaOT,
+                SeguimientoComercial.CiudadesImpacto,
+                contacto_crm.nit_contacto, 
+                contacto_crm.razon_social_contacto,
+                contacto_crm.id_contactos_CRM,
+                SeguimientoCreativo.dateEntrega,
+                SeguimientoCreativo.nombreBrief,
+                SeguimientoCreativo.objetivoBrief,
+                SeguimientoCreativo.tipoEntregables,
+                SeguimientoCreativo.id_liderProyectoOT,
+                SeguimientoCreativo.id_creativoOT,
+                SeguimientoCreativo.artesProyecto,
+                SeguimientoCreativo.linkProyecto,
+                SeguimientoCreativo.dateLinkProyecto,
+                SeguimientoCreativo.datosAdicionalesBrief,
+                SeguimientoCreativo.dateEntregaCliente,
+                SeguimientoCreativo.id_archivoAdjuntoCreativo,
+                SeguimientoCreativo.dateSocializacion,
+                SeguimientoCreativo.TipoCliente
+            FROM SeguimientoComercial 
+            JOIN contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
+            LEFT JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
+            WHERE contacto_crm.id_contactos_CRM = $id_contacto AND SeguimientoComercial.isDeleted = 0 AND SeguimientoComercial.NecesitaOT = 'Si' ;";
+            
+            $resultado2 = mysqli_query($conexion_bull, $sql_1);
+
+            if ($resultado2) {
+                // Almacena toda la información de proyectos
+                $proyectos = [];
+                if (mysqli_num_rows($resultado2) > 0) {
+                    while ($proyecto = mysqli_fetch_assoc($resultado2)) {
+                        $proyectos[] = $proyecto; // Almacena cada proyecto en un array
+                    }
+                    // Agrega los proyectos al contacto completo
+                    $contacto_completo['proyectos'] = $proyectos;
+                } else {
+                    $contacto_completo['proyectos'] = []; // Si no hay proyectos, asigna un array vacío
+                }
+            } else {
+                // Manejo de error para la segunda consulta
+                $contacto_completo['error_bull'] = "Error en la consulta BullTrack: " . mysqli_error($conexion_bull);
+            }
+            
+            // Agrega el contacto completo al array
+            $info_completa[] = $contacto_completo;
+        }
+    } else {
+        $info_completa['error'] = "No se encontraron contactos para el usuario.";
+    }
+} else {
+    $info_completa['error'] = "Error en la consulta principal: " . mysqli_error($conexion);
+}
+
+// Mostrar resultados
+//var_dump($info_completa);
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,6 +124,7 @@ if (isset($_SESSION['id'])) {
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadAvancesOT.js" defer></script>
 </head>
 <body>
     <div class="background-image" style="background-image: url(../Media/FonfoDash.jpg);"></div>
@@ -81,10 +180,10 @@ if (isset($_SESSION['id'])) {
                                     <h3>Información Avance OT</h3>
                                 </div>
                                 <div class="BotonesInteraccion">
-                                    <button class="BotonesFormulario">
+                                    <!-- <button class="BotonesFormulario">
                                         <img src="../Media/Iconos/editar.png" alt="local-icon" width="20" height="20" class="">
                                         <span>Editar</span>
-                                    </button>
+                                    </button> -->
                                 </div>
                             </div>
                             <form class="ParteFormularioOT">
@@ -135,8 +234,8 @@ if (isset($_SESSION['id'])) {
                                         <label for="Link">Link</label>
                                         <input 
                                             type="text" 
-                                            id="Link" 
-                                            name="Link"
+                                            id="linkProyecto" 
+                                            name="linkProyecto"
                                             readonly
                                             placeholder="Link del Proyecto"
                                         />
@@ -168,7 +267,7 @@ if (isset($_SESSION['id'])) {
                                     <div class="form-group">
                                         <label for="DateEntregaComercial">Fecha Entrega Comercial</label>
                                         <input 
-                                            type="date" 
+                                            type="datetime-local" 
                                             id="DateEntregaComercial" 
                                             name="DateEntregaComercial"
                                             readonly
@@ -178,7 +277,7 @@ if (isset($_SESSION['id'])) {
                                     <div class="form-group">
                                         <label for="DateFechaSocializacion">Fecha Socialización</label>
                                         <input 
-                                            type="date" 
+                                            type="datetime-local" 
                                             id="DateFechaSocializacion" 
                                             name="DateFechaSocializacion"
                                             readonly
@@ -188,7 +287,7 @@ if (isset($_SESSION['id'])) {
                                     <div class="form-group">
                                         <label for="DateEntregaLink">Fecha Entrega Link</label>
                                         <input 
-                                            type="date" 
+                                            type="datetime-local" 
                                             id="DateEntregaLink" 
                                             name="DateEntregaLink"
                                             readonly
@@ -198,36 +297,24 @@ if (isset($_SESSION['id'])) {
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="DatosAdicionales">Datos Adicionales</label>
-                                        <div class="custom-file-container">
-                                            <input 
-                                                type="file" 
-                                                id="ArchivosAdjuntosBrief" 
-                                                name="ArchivosAdjuntosBrief" 
-                                                style="display: none;"
-                                                placeholder="Datos Adicionales"
-                                            />
-                                            <span class="file-name" id="fileNameBrief">No se ha seleccionado ningún archivo</span>
-                                            <label for="ArchivosAdjuntosBrief" class="custom-file-upload">
-                                                Elegir archivo
-                                            </label>
-                                        </div>
+                                        <label for="DateEntregaComercial">Datos Adicionales</label>
+                                        <input 
+                                            type="text" 
+                                            id="ArchivosAdjuntosBrief" 
+                                            name="ArchivosAdjuntosBrief"
+                                            readonly
+                                            placeholder="Fecha de Entrega Comercial"
+                                        />
                                     </div>
                                     <div class="form-group">
-                                        <label for="Artes">Artes</label>
-                                        <div class="custom-file-container">
-                                            <input 
-                                                type="file" 
-                                                id="fileUpload" 
-                                                name="fileUpload" 
-                                                style="display: none;"
-                                                placeholder="Artes"
-                                            />
-                                            <span class="file-name" id="fileNameArtes">No se ha seleccionado ningún archivo</span>
-                                            <label for="fileUpload" class="custom-file-upload">
-                                                Elegir archivo
-                                            </label>
-                                        </div>
+                                        <label for="DateFechaSocializacion">Artes</label>
+                                        <input 
+                                            type="text" 
+                                            id="artesCreativo" 
+                                            name="artesCreativo"
+                                            readonly
+                                            placeholder="Fecha de Socialización"
+                                        />
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -250,15 +337,89 @@ if (isset($_SESSION['id'])) {
                             <div class="InputFiltrar">
                                 <input type="text" placeholder="Buscar contactos...">
                             </div>
-                            <div class="Lista">
+                            <div class="Lista" id="listaProyectos">
                                 <ul>
-                                    <li>
-                                        <div class="user-item">
-                                            <div class="NombreContacto" style="font-size: 14px; font-weight: 600;">Juan Pérez</div>
-                                            <div class="CargoContacto" style="font-size: 13px; color: #262626;">Gerente de Ventas</div>
-                                            <div class="EmpresaContacto" style="font-size: 13px; color: #262626;">Empresa XYZ</div>
-                                        </div>
-                                    </li>
+                                    <?php
+                                    // Verificar si la consulta se realizó correctamente
+                                    if (!empty($info_completa)) {
+                                        // Usar un bucle foreach para recorrer los contactos
+                                        foreach ($info_completa as $contacto) {
+                                            // Comprobar si hay proyectos
+                                            if (!empty($contacto['proyectos'])) {
+                                                // Iterar sobre cada proyecto
+                                                foreach ($contacto['proyectos'] as $fila) {
+                                                    echo '<li>';
+                                                    echo '<div class="propuesta-item data-estadoPropuesta="inactivo"" '
+                                                        . 'data-id_proyecto="' . htmlspecialchars($fila["id"]) . '" '
+                                                        . 'data-nombre-proyecto="' . htmlspecialchars($fila["nombreProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-userBull="' . htmlspecialchars($fila["id_user"] ?? 'N/A') . '" '
+                                                        . 'data-unidadNegocio="' . htmlspecialchars($fila["id_unidadNegocio"] ?? 'N/A') . '" '
+                                                        . 'data-fechaInicio="' . htmlspecialchars($fila["dateCreated"] ?? 'N/A') . '" '
+                                                        . 'data-descripcionProyecto="' . htmlspecialchars($fila["descripcionProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-valorProyecto="' . htmlspecialchars($fila["valorProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-estadoPropuesta="' . htmlspecialchars($fila["estadoPropuesta"] ?? 'N/A') . '" '
+                                                        . 'data-dateEntregaEconomicaCliente="' . htmlspecialchars($fila["dateEntregaEconomicaCliente"] ?? 'N/A') . '" '
+                                                        . 'data-medioContacto_1="' . htmlspecialchars($fila["medioContacto1"] ?? 'N/A') . '" '
+                                                        . 'data-medioContacto_2="' . htmlspecialchars($fila["medioContacto2"] ?? 'N/A') . '" '
+                                                        . 'data-observacionProyecto_1="' . htmlspecialchars($fila["observacionProyecto1"] ?? 'N/A') . '" '
+                                                        . 'data-observacionProyecto_2="' . htmlspecialchars($fila["observacionProyecto2"] ?? 'N/A') . '" '
+                                                        . 'data-linkArchivosAdjuntos="' . htmlspecialchars($fila["archivosAdjuntos"] ?? 'N/A') . '" '
+                                                        . 'data-formatoProceso="' . htmlspecialchars($fila["formatoProceso"] ?? 'N/A') . '" '
+                                                        . 'data-idCliente="' . htmlspecialchars($fila["idCliente"] ?? 'N/A') . '" '
+                                                        . 'data-isDeleted="' . htmlspecialchars($fila["isDeleted"] ?? 'N/A') . '" '
+                                                        . 'data-nitCliente="' . htmlspecialchars($fila["nit_contacto"] ?? 'N/A') . '" '
+                                                        . 'data-razonSocialCliente="' . htmlspecialchars($fila["razon_social_contacto"] ?? 'N/A') . '" '
+                                                        . 'data-nombreCliente="' . htmlspecialchars($contacto["nombre"] ?? 'N/A') . '" '
+                                                        . 'data-apellidoCliente="' . htmlspecialchars($contacto["apellido"] ?? 'N/A') . '" '
+                                                        . 'data-apellidoCliente="' . htmlspecialchars($contacto["apellido"] ?? 'N/A') . '" '
+                                                        . 'data-ciudadesImpacto="' . htmlspecialchars($fila["CiudadesImpacto"] ?? 'N/A') . '" '
+                                                        . 'data-NecesitaOT="' . htmlspecialchars($fila["NecesitaOT"] ?? 'N/A') . '" '
+
+                                                        . 'data-nombreBrief="' . htmlspecialchars($fila["nombreBrief"] ?? 'N/A') . '" '
+                                                        . 'data-objetivoBrief="' . htmlspecialchars($fila["objetivoBrief"] ?? 'N/A') . '" '
+                                                        . 'data-tipoEntregable="' . htmlspecialchars($fila["tipoEntregables"] ?? 'N/A') . '" '
+                                                        . 'data-tipoCliente="' . htmlspecialchars($fila["TipoCliente"] ?? 'N/A') . '" '
+                                                        . 'data-dateEntregaComercial="' . htmlspecialchars($fila["dateEntrega"] ?? 'N/A') . '" '
+
+                                                        . 'data-liderProyecto="' . htmlspecialchars($fila["id_liderProyectoOT"] ?? 'N/A') . '" '
+                                                        . 'data-creativosOT="' . htmlspecialchars($fila["id_creativoOT"] ?? 'N/A') . '" '
+                                                        . 'data-artesProyecto="' . htmlspecialchars($fila["artesProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-linkProyecto="' . htmlspecialchars($fila["linkProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-dateLinkProyecto="' . htmlspecialchars($fila["dateLinkProyecto"] ?? 'N/A') . '" '
+                                                        . 'data-datosAdicionalesBrief="' . htmlspecialchars($fila["datosAdicionalesBrief"] ?? 'N/A') . '" '
+                                                        . 'data-dateEntregaCliente="' . htmlspecialchars($fila["dateEntregaCliente"] ?? 'N/A') . '" '
+                                                        . 'data-dateSocializacion="' . htmlspecialchars($fila["dateSocializacion"] ?? 'N/A') . '" '
+                                                        . 'data-tipoCliente="' . htmlspecialchars($fila["tipoCliente"] ?? 'N/A') . '" '
+                                                        . '>';
+
+                                                    // Mostrar información del proyecto
+                                                    echo '<div class="NombreProyecto" id="NombreProyecto" style="font-size: 14px; font-weight: 600;">'
+                                                        . htmlspecialchars($fila["nombreProyecto"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    echo '<div class="ClienteProyecto"  style="font-size: 14px; font-weight: 600;">'
+                                                        . htmlspecialchars($contacto["nombre"] ?? 'No disponible') . ' - ' 
+                                                        . htmlspecialchars($contacto["apellido"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    echo '<div class="NombreEmpresa" style="font-size: 14px; color: #262626;">'
+                                                        . htmlspecialchars($contacto["empresa"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    echo '<div class="EstadoProyecto" style="font-size: 13px; color: #262626;">'
+                                                        . htmlspecialchars($fila["estadoPropuesta"] ?? 'No disponible') . '</div>';
+                                                    
+                                                    // echo '<div class="FechaInicio" style="Sfont-size: 9px; color: #262626;">'
+                                                    //     . htmlspecialchars($fila["dateCreated"] ?? 'No disponible') . '</div>';
+
+                                                    echo '</div>'; // Cerrar propuesta-item
+                                                    echo '</li>'; // Cerrar li
+                                                }
+                                            } else {
+                                                echo '<li>No hay proyectos para el contacto ' . htmlspecialchars($contacto['razon_social_contacto'] ?? 'No disponible') . '.</li>';
+                                            }
+                                        }
+                                    } else {
+                                        echo '<li>No se encontraron resultados.</li>';
+                                    }
+                                    ?>
                                 </ul>
                             </div>
                         </div>

@@ -284,7 +284,7 @@ nav span {
       "GridInformacionUsuario GridHeaderApp_2 GridHeaderApp_2"
       "GridInformacionUsuario GridHeaderApp GridHeaderApp"
       "GridInformacionUsuario GridContentApp GridContentApp";
-  grid-template-columns: 250px 1fr 1fr;
+  grid-template-columns: 230px 1fr 1fr;
   grid-template-rows: 80px 35px 1fr;
   gap: 10px;
   height: 100vh;
@@ -296,7 +296,7 @@ nav span {
 
 .GridInformacionUsuario {
   width: 100%;
-  height: 100%; /*100vh*/
+  height: auto;
   grid-area: GridInformacionUsuario;
   background: linear-gradient(to bottom, #d35400, #ff924a);
   display: flex;
@@ -322,14 +322,16 @@ nav span {
   padding: 10px;
 }
 
+/* Estilo para el contenedor general */
 .GridHeaderApp_2 {
   grid-area: GridHeaderApp_2;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 10px;
   border-radius: 8px;
 }
+
 
 .GridContentApp {
   grid-area: GridContentApp;
@@ -356,7 +358,7 @@ nav span {
 
 .logo_image_Dashboard {
   width: 75%;
-  max-width: 200px;
+  max-width: 150px; /* Ajuste del tamaño máximo para pantallas más pequeñas */
   height: auto;
   object-fit: contain;
 }
@@ -396,13 +398,13 @@ nav span {
 
 .TipoGrafia {
   color: #fff;
-  font-size: 16px;
+  font-size: 14px;
   margin-bottom: 5px;
 }
 
 .TipoGrafia_App {
   color: #fff;
-  font-size: 18px;
+  font-size: 15px;
   margin-bottom: 20px;
 }
 
@@ -447,7 +449,7 @@ nav span {
 
 @media (max-width: 768px) {
   .GridInformacionUsuario {
-    padding: 10px;
+    padding: 30px;
   }
 
   .logo_image_Dashboard {
@@ -463,8 +465,9 @@ nav span {
   }
 }
 
-.BotonSalir{
-  width: 8%;
+.BotonSalir {
+  /* Usa width auto para que el ancho se ajuste al contenido */
+  width: auto;
   height: 40px;
   color: #fff;
   display: flex;
@@ -473,6 +476,7 @@ nav span {
   margin-bottom: 10px;
   border-radius: 5px;
   transition: background-color 0.3s ease;
+  justify-content: center; /* Centrar contenido */
 }
 
 .BotonSalir:hover {
@@ -480,12 +484,16 @@ nav span {
   cursor: pointer;
 }
 
-.BotonSalir svg {
+.BotonSalir img {
   margin-right: 10px;
+  /* Asegurar que la imagen sea responsive */
+  width: 20px;
+  height: 20px;
 }
 
 .BotonSalir span {
   font-size: 14px;
+  white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
 }
 
 /* Estilos Generales de Contactos del CRM */
@@ -1106,10 +1114,10 @@ input:focus, textarea:focus , select:focus{
   display: block;
 }
 
-.ParteFormularioOT-Agregar{
+.ParteFormularioOT_RegistroPropuestas{
   width: 100%;
   height: 100%;
-  display: none;
+  margin-top: 20px;
 }
 
 .ParteInferiorFormulario{
@@ -1126,6 +1134,7 @@ input:focus, textarea:focus , select:focus{
   margin-bottom: 5px; /* Espaciado entre los elementos */
   background-color: transparent; /* Fondo transparente por defecto */
   cursor: pointer;
+  width: auto;
   transition: background-color 0.3s ease; /* Suaviza la transición del color de fondo */
   background-color: rgb(238, 238, 238); /* Color de fondo para los elementos impares */
 }

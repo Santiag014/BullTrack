@@ -27,6 +27,7 @@ if (isset($_SESSION['id'])) {
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadContactos.js" defer></script> 
 </head>
 <body>
     
@@ -94,7 +95,5 @@ if (isset($_SESSION['id'])) {
             </div>
         </div>
     </div>
-    <script src="./Funcionalidad/FuncionalidadComercial.js"></script> 
-     <!-- <script src="../index.php"> </script> -->
 </body>
 </html>
