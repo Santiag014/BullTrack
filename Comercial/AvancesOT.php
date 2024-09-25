@@ -19,7 +19,6 @@ if (isset($_SESSION['id'])) {
     );
 }
 
-
 // Consulta para iterar por Contactos de CRM
 include '../ConexionesBD/ConexcionDBcrm.php';
 // Consulta para iterar por Contactos de BullTrack
@@ -303,7 +302,7 @@ if ($resultado) {
                                             id="ArchivosAdjuntosBrief" 
                                             name="ArchivosAdjuntosBrief"
                                             readonly
-                                            placeholder="Fecha de Entrega Comercial"
+                                            placeholder="Datos Adicionales OT"
                                         />
                                     </div>
                                     <div class="form-group">
@@ -313,19 +312,7 @@ if ($resultado) {
                                             id="artesCreativo" 
                                             name="artesCreativo"
                                             readonly
-                                            placeholder="Fecha de Socialización"
-                                        />
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="ObservacionesOT">Observaciones OT - Comercial</label>
-                                        <input 
-                                            type="text" 
-                                            id="ObservacionesOT" 
-                                            name="ObservacionesOT"
-                                            readonly
-                                            placeholder="Observaciones OT"
+                                            placeholder="Artes OT"
                                         />
                                     </div>
                                 </div>

@@ -4,6 +4,7 @@ function RedirigirHome() { window.location.href = '../../Comercial/DashboardCome
 function ContactosCRM() { window.location.href = '../../Comercial/ContactosCRMComercial.php'; }
 function RedirigirPropuestas() { window.location.href = '../../Comercial/PropuestasComercial.php'; }
 function RedirigirAvancesOT() { window.location.href = '../../Comercial/AvancesOT.php'; }
+function RedirigirGerencia() { window.location.href = '../../Comercial/DashboardGerencia.php'; }
 
 
 /*----------------FUncionalidad Contactos Comercial----------------*/

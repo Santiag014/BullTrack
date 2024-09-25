@@ -36,9 +36,11 @@
                 <div id="reset-message" class="success-message"></div>
                 
                 <!-- Mensaje de error -->
-                <?php if (!empty($errorLogin)): ?>
-                    <div class='error-message'><?php echo $errorLogin; ?></div>
-                <?php endif; ?>
+                <?php
+                    if (!empty($errorLogin)) {
+                        echo "<script>alert('$errorLogin');</script>";
+                    }
+                    ?>
             </form>
         </div>
     </div>
@@ -80,10 +82,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             var_dump($_SESSION);
             // Redirigir según el rol del usuario
-            if ($row['id_rol'] == '1') {
-                header("Location: ./Comercial/DashboardComercial.php");
-            } else {
-                header("Location: index.php");
+            switch ($row['id_rol']) {
+                //Redireccion para el rol de Lider Comercial
+                case "3":
+                    header("Location: ./Comercial/DashboardComercial.php");
+                    break;
+                //Redireccion para el rol de Comercial
+                case '1':
+                    header("Location: ./Comercial/DashboardComercial.php");
+                    break;
+                //Redireccion para el rol de Lider de Produccion
+                case '5':
+                    header("Location: ./Produccion/DashboardGerencia.php");
+                    break;
+                //Redireccion para el rol de Creativos
+                case '2':
+                    header("Location: ./Creativo/ProyectosLideres.php");
+                    break;
+                default:
+                    // Aquí puedes agregar una acción por defecto si es necesario
+                    break;
             }
             exit();
         } else {

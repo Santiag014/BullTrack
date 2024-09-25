@@ -209,8 +209,11 @@ document.addEventListener("DOMContentLoaded", function() {
         // Seleccionar los inputs del formulario que no se deben habilitar
         const inputs = document.querySelectorAll('.ParteFormularioPropuesta input:not([name="NIT"]):not([name="RazonSocial"]):not([name="NombreCliente"])');
         const selects = document.querySelectorAll('.ParteFormularioPropuesta select'); // Seleccionar todos los selects
+        const textarea = document.querySelectorAll('.ParteFormularioPropuesta textarea'); // Seleccionar todos los textarea del FOrmulario Principal
+
         const inputsOT = document.querySelectorAll('.ParteFormularioOT_RegistroPropuestas input'); // Seleccionar inputs de OT
         const selectsOT = document.querySelectorAll('.ParteFormularioOT_RegistroPropuestas select'); // Seleccionar todos los selects de OT
+        const textAreaOT = document.querySelectorAll('.ParteFormularioOT_RegistroPropuestas textarea'); // Seleccionar textArea de OT
         
         console.log("Estado actual de enModoEdicion:", enModoEdicion);
     
@@ -223,6 +226,12 @@ document.addEventListener("DOMContentLoaded", function() {
             inputs.forEach(input => {
                 input.readOnly = false;
                 console.log(`Habilitado: ${input.name} = ${input.value}`);
+            });
+
+             // Habilitar TextArea de OT
+             textarea.forEach(textarea => {
+                textarea.readOnly = false;
+                console.log(`Habilitado TextArea OT: ${textarea.name}`);
             });
     
             // Habilitar los inputs de la parte OT
@@ -243,6 +252,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.log(`Habilitado select OT: ${select.name}`);
             });
     
+            // Habilitar TextArea de OT
+            textAreaOT.forEach(textarea => {
+                textarea.readOnly = false;
+                console.log(`Habilitado TextArea OT: ${textarea.name}`);
+            });
+            
             imagen.src = "../../../Media/Iconos/guardar.png";
             texto.textContent = "Actualizar...";
         } else {
@@ -251,6 +266,11 @@ document.addEventListener("DOMContentLoaded", function() {
             enModoEdicion = false;
     
             // Deshabilitar los inputs del formulario principal
+            textarea.forEach(input => {
+                input.readOnly = true;
+                console.log(`Deshabilitado: ${input.name} = ${input.value}`);
+            });
+
             inputs.forEach(input => {
                 input.readOnly = true;
                 console.log(`Deshabilitado: ${input.name} = ${input.value}`);
@@ -274,11 +294,22 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.log(`Deshabilitado select OT: ${select.name}`);
             });
     
+            // Deshabilitar TextArea de OT
+            textAreaOT.forEach(textarea => {
+                textarea.readOnly = true;
+                console.log(`Deshabilitado TextArea OT: ${textarea.name}`);
+            });
+    
             // Recoger los datos del formulario
             const formData = new FormData();
     
             // Añadir inputs del formulario principal
             inputs.forEach(input => {
+                formData.append(input.name, input.value);
+                console.log(`Datos a enviar: ${input.name} = ${input.value}`);
+            });
+
+            textarea.forEach(input => {
                 formData.append(input.name, input.value);
                 console.log(`Datos a enviar: ${input.name} = ${input.value}`);
             });
@@ -301,11 +332,17 @@ document.addEventListener("DOMContentLoaded", function() {
                 console.log(`Datos a enviar select OT: ${select.name} = ${select.value}`);
             });
     
+            // Añadir TextArea de OT
+            textAreaOT.forEach(textarea => {
+                formData.append(textarea.name, textarea.value);
+                console.log(`Datos a enviar TextArea OT: ${textarea.name} = ${textarea.value}`);
+            });
+    
             // Mostrar un indicador de carga
             boton.disabled = true;
             texto.textContent = "Actualizando...";
-
-                        // Mostrar los datos que se están enviando
+    
+            // Mostrar los datos que se están enviando
             for (var pair of formData.entries()) {
                 console.log(pair[0] + ': ' + pair[1]);
             }
@@ -340,6 +377,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
         }
     });
+    
     
     //LÑogica Encargada de mnaejar la Seleccion de usuario para Registrar propuesta
     // Declarar la variable globalmente
@@ -419,11 +457,17 @@ document.addEventListener("DOMContentLoaded", function() {
     
         // Seleccionar los inputs o divs que tienen las clases específicas
         const FormularioPropuestas = document.querySelectorAll('.ParteFormularioPropuesta');
+
         const SeleccionUsuario = document.querySelectorAll('.SelectUserPropuesta');
+
         const inputsFormualrioPropuesta = document.querySelectorAll('.ParteFormularioPropuesta input');
+        const textareaFormularioPropuesta = document.querySelectorAll('.ParteFormularioPropuesta textarea');
         const selectsFormularioPropuesta = document.querySelectorAll('.ParteFormularioPropuesta select');
+
         const inputsOT = document.querySelectorAll('.ParteFormularioOT_RegistroPropuestas input');
         const selectsOT = document.querySelectorAll('.ParteFormularioOT_RegistroPropuestas select');
+
+        textarea = document.querySelectorAll('.ParteFormularioPropuesta textarea'); // Seleccionar todos los textarea del FOrmulario Principal
     
         // Seleccionar el select 'NecesidadOTSelect' específico
         // const selectNecesidadOT = document.getElementById('NecesidadOTSelect');
@@ -445,6 +489,12 @@ document.addEventListener("DOMContentLoaded", function() {
             });
     
             // Limpiar y deshabilitar los campos de la propuesta y OT
+            textareaFormularioPropuesta.forEach(textarea => {
+                textarea.value = ''; // Limpiar el valor del textarea
+                textarea.readOnly = true; // Deshabilitar para edición
+                console.log(`Campo limpiado: ${textarea.name}`);
+            });
+
             [...inputsFormualrioPropuesta, ...inputsOT].forEach(input => {
                 input.value = ''; // Limpiar valor
                 input.readOnly = true; // Deshabilitar para edición
@@ -468,6 +518,10 @@ document.addEventListener("DOMContentLoaded", function() {
             [...selectsFormularioPropuesta, ...selectsOT].forEach(select => {
                 select.disabled = false; // Habilitar select
             });
+
+            textareaFormularioPropuesta.forEach(textarea => {
+                textarea.readOnly = false; // Habilitar para edición
+            });
     
             // Desbloquear el select 'NecesidadOTSelect' sin cambiar su valor predeterminado
             selectNecesidadOT.disabled = false; // Habilitar el select
@@ -481,6 +535,11 @@ document.addEventListener("DOMContentLoaded", function() {
             [...inputsFormualrioPropuesta, ...inputsOT].forEach(input => {
                 formData.append(input.name, input.value);
                 console.log(`Datos a enviar: ${input.name} = ${input.value}`);
+            });
+            
+            textareaFormularioPropuesta.forEach(textarea => {
+                formData.append(textarea.name, textarea.value);
+                console.log(`Datos a enviar: ${textarea.name} = ${textarea.value}`);
             });
     
             [...selectsFormularioPropuesta, ...selectsOT].forEach(select => {

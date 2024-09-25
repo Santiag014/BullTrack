@@ -99,7 +99,7 @@ if ($resultado) {
 } else {
     $info_completa['error'] = "Error en la consulta principal: " . mysqli_error($conexion);
 }
-
+//var_dump($info_completa);
 
 // Array para almacenar todos los contactos
 $todos_contactos = [];
@@ -233,103 +233,114 @@ if ($resultado) {
                                     <input type="hidden" id="id_Proyecto" name="id_Proyecto" value="">
                                     <div class="form-group">
                                         <label for="nombreCliente">Nombre Cliente</label>
-                                        <input type="text" id="NombreCliente" name="NombreCliente"  placeholder="Ingrese el Nombre del Cliente" readonly>
+                                        <input type="text" id="NombreCliente" name="NombreCliente"  placeholder="Nombre del Cliente" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="NIT">N.I.T</label>
-                                        <input type="text" id="NIT" name="NIT"  placeholder="Ingrese el N.I.T" readonly>
+                                        <input type="text" id="NIT" name="NIT"  placeholder="N.I.T" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="RazonSocial">Razon Social</label>
-                                        <input type="text" id="RazonSocial" name="RazonSocial" placeholder="Ingrese el N.I.T" readonly>
+                                        <input type="text" id="RazonSocial" name="RazonSocial" placeholder="Razón Social" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="NombreProyecto">Nombre Proyecto</label>
-                                        <input type="text" id="NombreProyecto" name="NombreProyecto" placeholder="Ingrese el Nombre del Proyecto"  readonly>
+                                        <div class="scrollable-container">
+                                            <textarea id="NombreProyecto" name="NombreProyecto" readonly placeholder="Nombre del Proyecto"></textarea>
+                                        </div>
+                                        <!-- <input type="text" id="NombreProyecto" name="NombreProyecto" placeholder="Nombre del Proyecto"  readonly> -->
                                     </div>
                                     <div class="form-group">
                                         <label for="DescipcionProyecto">Descripción Proyecto</label>
-                                        <input type="text" id="DescipcionProyecto" name="DescipcionProyecto" placeholder="Ingrese la Descipción del Proyecto" readonly>
+                                        <div class="scrollable-container">
+                                            <textarea id="DescipcionProyecto" name="DescipcionProyecto" readonly placeholder="Descipción del Proyecto"></textarea>
+                                        </div>
+                                        <!-- <input type="text" id="DescipcionProyecto" name="DescipcionProyecto" placeholder="Descipción del Proyecto" readonly> -->
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="UnidadNegocio">Unidad de Negocio</label>
-                                        <select id="UnidadNegocio" name="UnidadNegocio" placeholder="Ingrese la Descipción del Proyecto" disabled>
+                                        <select id="UnidadNegocio" name="UnidadNegocio" placeholder="Unidad de Negocio" disabled>
+                                            <option value="" selected></option>
                                             <option value="Trade">Trade</option>
-                                            <option value="Logistica" selected>Logistica</option>
-                                            <option value="Digital" selected>Digital</option>
-                                            <option value="BTL" selected>BTL</option>
+                                            <option value="Logistica" >Logistica</option>
+                                            <option value="Digital" >Digital</option>
+                                            <option value="BTL" >BTL</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="FormatoProceso">Formato de Proceso</label>
-                                        <select id="FormatoProceso" name="FormatoProceso" placeholder="Ingrese el Formato de Proceso" disabled>
+                                        <select id="FormatoProceso" name="FormatoProceso" placeholder="Formato de Proceso" disabled>
+                                            <option value="" selected></option>
                                             <option value="Mantenimiento">Mantenimiento</option>
-                                            <option value="Generación de Propuesta" selected>Generación de Propuesta</option>
-                                            <option value="Licitación" selected>Licitación</option>
-                                            <option value="Asignación" selected>Asignación</option>
+                                            <option value="Generación de Propuesta" >Generación de Propuesta</option>
+                                            <option value="Licitación" >Licitación</option>
+                                            <option value="Asignación" >Asignación</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="estadoPropuesta">Estado de la Propuesta</label>
-                                        <select id="estadoPropuesta" name="estadoPropuesta" placeholder="Ingrese el Formato de Proceso" disabled>
+                                        <select id="estadoPropuesta" name="estadoPropuesta" placeholder="Estado de Propuesta" disabled>
+                                            <option value="" selected></option>
                                             <option value="Propuesta">Propuesta</option>
-                                            <option value="Vendida" selected>Vendida</option>
-                                            <option value="No Aprobada" selected>No Aprobada</option>
-                                            <option value="Licitación" selected>Licitación</option>
-                                            <option value="Presentacion de Credenciales" selected>Presentación de Credenciales</option>
+                                            <option value="Vendida" >Vendida</option>
+                                            <option value="No Aprobada" >No Aprobada</option>
+                                            <option value="Licitación" >Licitación</option>
+                                            <option value="Presentacion de Credenciales" >Presentación de Credenciales</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="CiudadesImpacto">Ciudades de Impacto</label>
-                                        <input type="text" id="CiudadesImpacto" name="CiudadesImpacto" placeholder="Ingrese Ciudades de Impacto" readonly>
+                                        <input type="text" id="CiudadesImpacto" name="CiudadesImpacto" placeholder="Ciudades de Impacto" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="ValorPropuesta">Valor de la Propuesta</label>
-                                        <input type="number" id="ValorPropuesta" name="ValorPropuesta" placeholder="Ingrese el Valor de la Propuesta" readonly>
+                                        <input type="number" id="ValorPropuesta" name="ValorPropuesta" placeholder="Valor de Propuesta" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="FechaEntregaEconomica">Fecha Entrega Economica</label>
-                                        <input type="datetime-local" id="FechaEntregaEconomica" name="FechaEntregaEconomica" placeholder="Ingrese la Fecha de Entrega Económica" readonly>
+                                        <input type="datetime-local" id="FechaEntregaEconomica" name="FechaEntregaEconomica" placeholder="Fecha de Entrega Económica" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="Contacto_1">Contacto 1</label>
-                                        <input type ="text" id="Contacto_1" name="Contacto_1" placeholder="Ingrese los Medios de Contacto" readonly>
+                                        <input type ="text" id="Contacto_1" name="Contacto_1" placeholder="Medio de Contacto" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="Contacto_2">Contacto 2</label>
-                                        <input type ="text" id="Contacto_2" name="Contacto_2" placeholder="Ingrese los Medios de Contacto" readonly>
+                                        <input type ="text" id="Contacto_2" name="Contacto_2" placeholder="Medio de Contacto" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="Observación_1">Observación 1</label>
-                                        <input type="text" id="Observación_1" name="Observación_1" placeholder="Ingrese una Observación" readonly>
+                                        <input type="text" id="Observación_1" name="Observación_1" placeholder="Observación" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="Observación_2">Observación 2</label>
-                                        <input type ="text" id="Observación_2" name="Observación_2" placeholder="Ingrese una Observación" readonly>
+                                        <input type ="text" id="Observación_2" name="Observación_2" placeholder="Observación" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="ArchivosAdjuntosComercial">Archivos Enviados por el Cliente</label>
-                                        <input type ="text" id="ArchivosAdjuntosComercial" name="ArchivosAdjuntosComercial" placeholder="Ingrese los Archivos" readonly>
+                                        <input type ="text" id="ArchivosAdjuntosComercial" name="ArchivosAdjuntosComercial" placeholder="Archivos Adicionales" readonly>
                                     </div>
                                     <div class="form-group">
-                                        <label for="NecesidadOT">Necesita OT</label>
-                                        <select id="NecesidadOTSelect" name="NecesidadOTSelect" disabled>
-                                            <option value="Si">Si</option>
-                                            <option value="No" selected>No</option>
-                                        </select>
-                                    </div>
+                                <label for="NecesidadOT">Necesita OT</label>
+                                <select id="NecesidadOTSelect" name="NecesidadOTSelect" disabled>
+                                    <option value="" selected></option>
+                                    <option value="Si">Si</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+
                                 </div>
                             </form> 
 
@@ -444,23 +455,15 @@ if ($resultado) {
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="Brief">Brief</label>
-                                        <input 
-                                            type="text" 
-                                            id="Brief" 
-                                            name="Brief"  
-                                            readonly
-                                            placeholder=" Ingrese el Nombre del Brief"
-                                        />
+                                        <div class="scrollable-container">
+                                            <textarea id="Brief" name="Brief" readonly placeholder=" Ingrese el Nombre del Brief"> </textarea>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="ObjetivosBrief">Objetivo del Brief</label>
-                                        <input 
-                                            type="text" 
-                                            id="ObjetivosBrief" 
-                                            name="ObjetivosBrief"
-                                            readonly
-                                            placeholder="Ingrese el Objetivo del Brief"
-                                        />
+                                        <div class="scrollable-container">
+                                            <textarea id="ObjetivosBrief" name="ObjetivosBrief" readonly></textarea>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-row">

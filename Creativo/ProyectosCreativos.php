@@ -20,7 +20,7 @@
                     <img src="../Media/fotoPerfil.jpg" alt="FotoBullMarketing" class="logo_image_Dashboard">
                     <div class="TipoGrafia">Nombre Del Usuario</div>
                     <div class="TipoGrafia">Cargo</div>
-                    <div class="TipoGrafia">Rol</div>    
+                    <div class="TipoGrafia_Rol">Rol</div>    
                 </div>
                 <div class="InformacionModulos">
                     <div class="ModulosDash">
