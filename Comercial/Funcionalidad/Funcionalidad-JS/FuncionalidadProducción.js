@@ -3,8 +3,9 @@
     function RedirigirHome() { window.location.href = '../../Comercial/DashboardComercial.php'; }
     function ContactosCRM() { window.location.href = '../../Comercial/ContactosCRMComercial.php'; }
     function RedirigirPropuestas() { window.location.href = '../../Comercial/PropuestasComercial.php'; }
-    function RedirigirProduccon() { window.location.href = '../../../Comercial/Producción.php'; }
     function RedirigirAvancesOT() { window.location.href = '../../Comercial/AvancesOT.php'; }
+    function RedirigirProduccon() { window.location.href = '../../Comercial/Produccion.php'; }
+    function RedirigirProduccon() { window.location.href = '../../Comercial/Produccion.php'; }
 
 /*----------------FUncionalidad Propuestas Comercial----------------*/
 
@@ -263,15 +264,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 success: function(response) {
                     console.log("Respuesta del servidor:", response);
                     if (response.success) {
-                        alert("Propuesta Actualizada con Éxito");
+                        alert("Contacto actualizado con éxito");
                         location.reload(); // Esto recargará la página actual
                     } else {
-                        alert("Error al ACtualizar la Propuesta: " + (response.message || "Error desconocido"));
+                        alert("Error al actualizar el contacto: " + (response.message || "Error desconocido"));
                     }
                 },
                 error: function(xhr, status, error) {
                     console.error("Error en la petición AJAX:", error);
-                    alert("Error al actualizar la Propuesta: " + error);
+                    alert("Error al actualizar el contacto: " + error);
                 },
                 complete: function() {
                     // Restaurar el botón a su estado original
@@ -668,30 +669,6 @@ document.getElementById('agregarPropuestasBtn').addEventListener('click', functi
         console.log("Eliminación cancelada por el usuario.");
     }
 });
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const searchInputCrm = document.querySelector('.filterUserSelect input');
-    const userItems = document.querySelectorAll('.user-item');
-
-    searchInputCrm.addEventListener('input', () => {
-        const searchTerm = searchInputCrm.value.toLowerCase(); // Valor de búsqueda
-
-        userItems.forEach(item => {
-            const NombreContacto = item.querySelector('.NombreContacto').textContent.toLowerCase();
-            const nombreEmpresa = item.querySelector('.EmpresaContacto').textContent.toLowerCase(); // Cambiar a EmpresaContacto
-
-            // Filtrar si el término de búsqueda está en el nombre del contacto o el nombre de la empresa
-            if (NombreContacto.includes(searchTerm) || nombreEmpresa.includes(searchTerm)) {
-                item.style.display = 'block'; // Mostrar si coincide con alguno
-            } else {
-                item.style.display = 'none'; // Ocultar si no coincide
-            }
-        });
-    });
-});
-
 
     
 

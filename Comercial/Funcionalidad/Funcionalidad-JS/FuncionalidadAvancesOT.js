@@ -3,6 +3,7 @@
     function RedirigirHome() { window.location.href = '../../Comercial/DashboardComercial.php'; }
     function ContactosCRM() { window.location.href = '../../Comercial/ContactosCRMComercial.php'; }
     function RedirigirPropuestas() { window.location.href = '../../Comercial/PropuestasComercial.php'; }
+    function RedirigirProduccon() { window.location.href = '../../../Comercial/Producción.php'; }
     function RedirigirAvancesOT() { window.location.href = '../../Comercial/AvancesOT.php'; }
 
 /*----------------FUncionalidad Propuestas Comercial----------------*/
@@ -57,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function() {
             // Llenar los campos con la información del proyecto
 
             document.getElementById('LiderProyecto').value = liderProyecto;
-            document.getElementById('CreativoProyecto').value = idCreativoOT;
+            document.getElementById('CreativosOT').value = idCreativoOT;
 
             document.getElementById('Brief').value = nombreBrief;
             document.getElementById('ObjetivosBrief').value = objetivoBrief;
@@ -142,4 +143,25 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        const searchInputCrm = document.querySelector('.InputFiltrar input');
+        const userItems = document.querySelectorAll('.propuesta-item');
+    
+        searchInputCrm.addEventListener('input', () => {
+            const searchTerm = searchInputCrm.value.toLowerCase(); // Valor de búsqueda
+    
+            userItems.forEach(item => {
+                const NombreProyecto = item.querySelector('.NombreProyecto').textContent.toLowerCase();
+                const nombreEmpresa = item.querySelector('.NombreEmpresa').textContent.toLowerCase(); // Cambiar a EmpresaContacto
+    
+                // Filtrar si el término de búsqueda está en el nombre del contacto o el nombre de la empresa
+                if (NombreProyecto.includes(searchTerm) || nombreEmpresa.includes(searchTerm)) {
+                    item.style.display = 'block'; // Mostrar si coincide con alguno
+                } else {
+                    item.style.display = 'none'; // Ocultar si no coincide
+                }
+            });
+        });
+    });
     

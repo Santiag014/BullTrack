@@ -68,7 +68,7 @@ if ($resultado) {
             FROM SeguimientoComercial 
             JOIN contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
             LEFT JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
-            WHERE contacto_crm.id_contactos_CRM = $id_contacto AND SeguimientoComercial.isDeleted = 0  AND SeguimientoComercial.estadoPropuesta IN('Propuesta', 'No Aprobada', 'Licitación', 'Presentación de Credenciales')
+            WHERE contacto_crm.id_contactos_CRM = $id_contacto AND SeguimientoComercial.isDeleted = 0 AND SeguimientoComercial.estadoPropuesta = 'Vendida'
                         GROUP BY SeguimientoComercial.id;";
             
             $resultado2 = mysqli_query($conexion_bull, $sql_1);
@@ -154,7 +154,7 @@ if ($resultado) {
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
-    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadPropuestas.js" defer></script>
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadProducción.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
      
 </head>
@@ -175,7 +175,7 @@ if ($resultado) {
                     <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>   
                 </div>
                 <div class="InformacionModulos">
-                    <div class="ModulosDash" onclick="RedirigirHome(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                <div class="ModulosDash" onclick="RedirigirHome(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                         <img src="../Media/Iconos/Home.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Home</span>
                     </div>
@@ -226,21 +226,9 @@ if ($resultado) {
                                     <h3>Información de Propuesta</h3>
                                 </div>
                                 <div class="BotonesInteraccion">
-                                    <button class="BotonesFormulario"  id="AgregarOrdenTrabajo" onclick="">
-                                        <img src="../Media/Iconos/maleta.png" alt="local-icon" width="20" height="20" class="">
-                                        <span>Crear OT</span>
-                                    </button>
                                     <button class="BotonesFormulario" id="editarPropuestasBtn">
                                         <img src="../Media/Iconos/editar.png" alt="local-icon" width="20" height="20" class="">
                                         <span>Editar</span>
-                                    </button>
-                                    <button class="BotonesFormulario"  id="agregarPropuestasBtn">
-                                        <img src="../Media/Iconos/Agregar.png" alt="local-icon" width="20" height="20" class="">
-                                        <span>Agregar</span>
-                                    </button>
-                                    <button class="BotonesFormulario"  id="eliminarPropuestasBtn">
-                                        <img src="../Media/Iconos/eliminar.png" alt="local-icon" width="20" height="20" class="">
-                                        <span>Eliminar</span>
                                     </button>
                                 </div>
                             </div>

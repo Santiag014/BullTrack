@@ -27,14 +27,13 @@ if (isset($_SESSION['id'])) {
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
-    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadContactos.js" defer></script> 
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadCreativo.js" defer></script>
 </head>
-
 <body>
     <div class="background-image"></div>
     <div class="GridContanier">
         
-    <div class="GridInformacionUsuario">
+        <div class="GridInformacionUsuario">
             <div class="Marca">
                 <img src="../Media/LogoBull_2.png" alt="FotoBullMarketing" class="logo_image_Dashboard">
             </div>
@@ -46,35 +45,36 @@ if (isset($_SESSION['id'])) {
                     <div class="TipoGrafia"><?php echo $NombreUsuario; ?></div>
                     <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>   
                 </div>
+                <div class="InformacionDashboar">
+                <!-- Mostrar Dashboard Gerencial solo si id_rol es 4 -->
                 <div class="InformacionModulos">
-                <div class="ModulosDash" onclick="RedirigirHome(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
-                        <img src="../Media/Iconos/Home.png" alt="local-icon" width="20" height="20" class="local-icon">
-                        <span>Home</span>
+                    <?php if ($id_rol == 4): ?>
+                        <div class="ModulosDash" onclick="AsignarProyectos(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                            <img src="../Media/Iconos/asignar_boton.png" alt="local-icon" width="20" height="20" class="local-icon">
+                            <span>Asignar OTs</span>
+                        </div>
+                    <?php endif; ?>
+                    <div class="ModulosDash" onclick="RedirigirLideres()">
+                        <img src="../Media/Iconos/lider.png" alt="local-icon" width="20" height="20" class="local-icon">
+                        <span>Proyectos Líderes</span>
                     </div>
-                    <div class="ModulosDash" onclick="ContactosCRM(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
-                        <img src="../Media/Iconos/User.png" alt="local-icon" width="20" height="20" class="local-icon">
-                        <span>Contactos CRM</span>
+                    <div class="ModulosDash" onclick="RedirigiCreativos()">
+                        <img src="../Media/Iconos/creativos.png" alt="local-icon" width="20" height="20" class="local-icon">
+                        <span>Proyectos Creativos</span>
                     </div>
-                    <div class="ModulosDash" onclick="RedirigirPropuestas(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                    <div class="ModulosDash" onclick="RedirigirFinalizados()">
                         <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
-                        <span>Propuestas</span>
+                        <span>Proyectos Finalizados</span>
                     </div>
-                    <div class="ModulosDash" onclick="RedirigirAvancesOT(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
-                        <img src="../Media/Iconos/Avances.png" alt="local-icon" width="20" height="20" class="local-icon">
-                        <span>Avances OT</span>
-                    </div>
-                    <div class="ModulosDash" onclick="RedirigirProduccon(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
-                        <img src="../Media/Iconos/produccion.png" alt="local-icon" width="20" height="20" class="local-icon">
-                        <span>Producción</span>
-                    </div>
-                    <!-- Mostrar Dashboard Gerencial solo si id_rol es 3 -->
-                    <?php if ($id_rol == 3 || $id_rol == 6): ?>
-                        <div class="ModulosDash" onclick="RedirigirGerencia(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                    <!-- Mostrar Dashboard Gerencial solo si id_rol es 4 -->
+                    <?php if ($id_rol == 4): ?>
+                        <div class="ModulosDash" onclick="DashBoradGerencial(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                             <img src="../Media/Iconos/gerencia.png" alt="local-icon" width="20" height="20" class="local-icon">
                             <span>Dashboard Gerencial</span>
                         </div>
                     <?php endif; ?>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -97,7 +97,7 @@ if (isset($_SESSION['id'])) {
                             title="Parisos-Corona-Promo-Corona-2024" 
                             width="600" 
                             height="373.5" 
-                            src="https://app.powerbi.com/view?r=eyJrIjoiNTMxN2U0ZTctZWM0MC00YmRkLThjNGYtNzNhZDUxZmU5MzBlIiwidCI6Ijk2OWUxYWZhLTM2YWItNGQ5ZS1iYmM2LWU5Y2U3ZWE0N2U5OSIsImMiOjR9" 
+                            src="https://app.powerbi.com/view?r=eyJrIjoiMDcxZmI4ODAtZDUyZC00MTFiLTk2NGQtMzc0MzdlYjBlMTliIiwidCI6Ijk2OWUxYWZhLTM2YWItNGQ5ZS1iYmM2LWU5Y2U3ZWE0N2U5OSIsImMiOjR9" 
                             frameborder="0" 
                             style="border: none;" 
                             allowFullScreen="true">

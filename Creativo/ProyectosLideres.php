@@ -1,3 +1,185 @@
+<?php
+// Iniciar sesión y verificación de usuario (código no modificado)
+session_start();
+
+if (isset($_SESSION['id'])) {
+    $id = $_SESSION['id'];
+    $NombreUsuario = $_SESSION['NombreUsuario'];
+    $CorreoUsuario = $_SESSION['CorreoUsuario'];
+    $rol_user = $_SESSION['NombreRol'];
+    $id_rol = $_SESSION['id_rol'];
+    $id_CRM = $_SESSION['id_CRM'];
+    $id_USER = $_SESSION['id'];
+
+    $_SESSION['datos_usuario'] = array(
+        'id' => $id,
+        'nombre' => $NombreUsuario,
+        'correo' => $CorreoUsuario,
+        'rol_user' => $rol_user,
+    );
+}
+
+// Función para imprimir de manera segura
+function debug_print($message) {
+    echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8') . "<br>\n";
+}
+
+// Conexión a BullTrack
+include '../ConexionesBD/ConexionBDBullTrack.php';
+
+//debug_print("Conexión a BullTrack establecida.");
+
+// Consulta en BullTrack (SQL no modificado)
+$sql_1 = "SELECT
+    SeguimientoCreativo.id,
+    SeguimientoComercial.id_user,
+    SeguimientoComercial.id_unidadNegocio,
+    SeguimientoComercial.dateCreated,
+    SeguimientoComercial.nombreProyecto,
+    SeguimientoComercial.descripcionProyecto,
+    SeguimientoComercial.valorProyecto,
+    SeguimientoComercial.estadoPropuesta,
+    SeguimientoComercial.dateEntregaEconomicaCliente,
+    SeguimientoComercial.medioContacto1,
+    SeguimientoComercial.medioContacto2,
+    SeguimientoComercial.observacionProyecto1,
+    SeguimientoComercial.observacionProyecto2,
+    SeguimientoComercial.archivosAdjuntos,
+    SeguimientoComercial.id_contacto,
+    SeguimientoComercial.formatoProceso,
+    SeguimientoComercial.CiudadesImpacto,
+    contacto_crm.nit_contacto, 
+    contacto_crm.razon_social_contacto,
+    contacto_crm.id_contactos_CRM,
+    SeguimientoCreativo.dateEntrega,
+    SeguimientoCreativo.nombreBrief,
+    SeguimientoCreativo.objetivoBrief,
+    SeguimientoCreativo.tipoEntregables,
+    SeguimientoCreativo.artesProyecto,
+    SeguimientoCreativo.linkProyecto,
+    SeguimientoCreativo.dateLinkProyecto,
+    SeguimientoCreativo.datosAdicionalesBrief,
+    SeguimientoCreativo.dateEntregaCliente,
+    SeguimientoCreativo.id_archivoAdjuntoCreativo,
+    SeguimientoCreativo.dateSocializacion,
+    SeguimientoCreativo.TipoCliente,
+    SeguimientoCreativo.EstadoProyecto,
+    SeguimientoCreativo.Created,
+    -- Subconsulta para obtener las horas trabajadas del usuario 13
+    (SELECT SUM(CreativosHoras.horasTrabajadas) 
+     FROM CreativosHoras 
+     WHERE CreativosHoras.usuario_id = $id_USER
+       AND CreativosHoras.id_seguimiento_creativo = SeguimientoCreativo.id) AS horasTrabajadas,
+    -- Subconsulta para obtener las horas extras del usuario 13
+    (SELECT SUM(CreativosHoras.horasExtras) 
+     FROM CreativosHoras 
+     WHERE CreativosHoras.usuario_id = $id_USER
+       AND CreativosHoras.id_seguimiento_creativo = SeguimientoCreativo.id) AS horasExtras,
+    -- Agrupar creativos y líderes
+    GROUP_CONCAT(CASE WHEN CreativosHoras.rolCreativos = 1 THEN Usuarios.NombreUsuario END) AS NombreLider,
+    GROUP_CONCAT(CASE WHEN CreativosHoras.rolCreativos = 0 THEN Usuarios.NombreUsuario END) AS CreativosOT,
+    u.NombreUsuario
+FROM SeguimientoComercial 
+JOIN contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
+JOIN Usuarios u ON contacto_crm.id_usuario = u.id  -- Corrige la unión con Usuarios
+INNER JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
+LEFT JOIN CreativosHoras ON SeguimientoCreativo.id = CreativosHoras.id_seguimiento_creativo
+LEFT JOIN Usuarios ON CreativosHoras.usuario_id = Usuarios.id
+WHERE SeguimientoComercial.isDeleted = 0 
+  AND SeguimientoCreativo.EstadoProyecto IN('Sin Asignar', 'En Producción')
+  -- Filtro para el usuario específico (creativo) 13
+  AND SeguimientoCreativo.id IN (
+      SELECT id_seguimiento_creativo
+      FROM CreativosHoras
+      WHERE rolCreativos = 1 
+        AND usuario_id = $id_USER)
+GROUP BY 
+    SeguimientoCreativo.id;
+";
+ 
+$resultado2 = mysqli_query($conexion_bull, $sql_1);
+
+//debug_print("Consulta BullTrack ejecutada.");
+
+$proyectos_bulltrack = []; // Array para almacenar los resultados de BullTrack
+
+//debug_print("Consulta BullTrack ejecutada.");
+
+// Verifica si hay resultados
+if ($resultado2) {
+    // Recorre cada fila del resultado
+    while ($proyecto = mysqli_fetch_assoc($resultado2)) {
+        // Usar id_contactos_CRM como clave
+        $id_contacto_CRM = $proyecto['id_contactos_CRM'];
+        
+        // Verifica si la clave ya existe en el array
+        if (!isset($proyectos_bulltrack[$id_contacto_CRM])) {
+            // Si no existe, inicializa un array para esa clave
+            $proyectos_bulltrack[$id_contacto_CRM] = [];
+        }
+        
+        // Agrega el proyecto al array correspondiente a esa clave
+        $proyectos_bulltrack[$id_contacto_CRM][] = $proyecto;
+        
+        //debug_print("Proyecto BullTrack agregado: ID_contactos_CRM " . $id_contacto_CRM);
+    }
+    
+    // Muestra el número de proyectos almacenados
+    //debug_print("Número de proyectos en BullTrack: " . count($proyectos_bulltrack));
+} else {
+    // Manejo de errores
+    //debug_print("Error en la consulta BullTrack: " . mysqli_error($conexion_bull));
+}
+
+//var_dump($proyectos_bulltrack);
+// Conexión a CRM
+include '../ConexionesBD/ConexcionDBcrm.php';
+//include '../Creativo/Funcionalidad/BackendLideres/consultaCreativoLider.php';
+//debug_print("Conexión a CRM establecida.");
+ 
+// Consulta para obtener contactos de CRM
+$sql_crm = "SELECT * FROM contactos;";
+$resultado = mysqli_query($conexion, $sql_crm);
+$info_completa = []; // Array para almacenar el resultado final
+ 
+$total_contactos = 0;
+$contactos_con_proyecto = 0;
+ 
+//debug_print("Consulta CRM ejecutada.");
+ 
+if ($resultado && mysqli_num_rows($resultado) > 0) {
+    //debug_print("Número de filas en resultado CRM: " . mysqli_num_rows($resultado));
+    while ($contacto = mysqli_fetch_assoc($resultado)) {
+        $total_contactos++;
+        $id_contacto_CRM = $contacto['id'];
+ 
+        //debug_print("Procesando contacto CRM: ID " . $id_contacto_CRM);
+ 
+        // Verifica si este contacto tiene un proyecto relacionado en BullTrack
+        if (isset($proyectos_bulltrack[$id_contacto_CRM])) {
+            $contactos_con_proyecto++;
+            // Asegúrate de que puedas manejar múltiples proyectos por contacto
+            $proyecto_bulltrack = $proyectos_bulltrack[$id_contacto_CRM];
+           
+            // Si un contacto puede tener varios proyectos, agrégalo a un array
+            if (isset($info_completa[$id_contacto_CRM])) {
+                // Ya existe un contacto, así que solo agrega el proyecto
+                $info_completa[$id_contacto_CRM]['proyectos'][] = $proyecto_bulltrack;
+            } else {
+                // No existe, así que crea la entrada
+                $contacto_completo = array_merge($contacto, ['proyectos' => [$proyecto_bulltrack]]);
+                $info_completa[$id_contacto_CRM] = $contacto_completo;
+            }
+        }
+    }
+} else {
+    $info_completa['error'] = "No se encontraron contactos en CRM.";
+    if (!$resultado) {
+    }
+}
+//var_dump($info_completa);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +188,8 @@
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadLideres.js" defer></script>
 </head>
 <body>
     <div class="background-image" style="background-image: url(../Media/FonfoDash.jpg);"></div>
@@ -18,23 +202,35 @@
                 <div class="FotoUsuarioDashboard">
                     <div class="TipoGrafia_App"> <strong>BullTrack</strong> <br/> App Seguimiento Interno</div>
                     <img src="../Media/fotoPerfil.jpg" alt="FotoBullMarketing" class="logo_image_Dashboard">
-                    <div class="TipoGrafia">Nombre Del Usuario</div>
-                    <div class="TipoGrafia">Cargo</div>
-                    <div class="TipoGrafia">Rol</div>    
+                    <div class="TipoGrafia"><?php echo $NombreUsuario; ?></div>
+                    <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>       
                 </div>
                 <div class="InformacionModulos">
-                    <div class="ModulosDash">
-                        <img src="../Media/Iconos/User.png" alt="local-icon" width="20" height="20" class="local-icon">
+                    <?php if ($id_rol == 4): ?>
+                        <div class="ModulosDash" onclick="AsignarProyectos(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                            <img src="../Media/Iconos/asignar_boton.png" alt="local-icon" width="20" height="20" class="local-icon">
+                            <span>Asignar OTs</span>
+                        </div>
+                    <?php endif; ?>
+                    <div class="ModulosDash" onclick="RedirigirLideres()">
+                        <img src="../Media/Iconos/lider.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Proyectos Líderes</span>
                     </div>
-                    <div class="ModulosDash">
-                        <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
+                    <div class="ModulosDash" onclick="RedirigiCreativos()">
+                        <img src="../Media/Iconos/creativos.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Proyectos Creativos</span>
                     </div>
-                    <div class="ModulosDash">
-                        <img src="../Media/Iconos/Avances.png" alt="local-icon" width="20" height="20" class="local-icon">
+                    <div class="ModulosDash" onclick="RedirigirFinalizados()">
+                        <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Proyectos Finalizados</span>
                     </div>
+                    <!-- Mostrar Dashboard Gerencial solo si id_rol es 4 -->
+                    <?php if ($id_rol == 4): ?>
+                        <div class="ModulosDash" onclick="DashBoradGerencial(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                            <img src="../Media/Iconos/gerencia.png" alt="local-icon" width="20" height="20" class="local-icon">
+                            <span>Dashboard Gerencial</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -42,7 +238,7 @@
             <!-- Breadcrumbs component will be rendered here -->
         </div>
         <div class="GridHeaderApp_2">
-            <div class="BotonSalir">
+            <div class="BotonSalir" onclick="RedirigirLogin()">
                 <img src="../Media/Iconos/Salir.png" alt="local-icon" width="20" height="20" class="local-icon">
                 <span>Salir</span>
             </div>
@@ -58,20 +254,22 @@
                                     <h3>Propuestas Creativo Lider</h3>
                                 </div>
                                 <div class="BotonesInteraccion">
-                                    <button class="BotonesFormulario" id="editarBtn">
+                                    <button class="BotonesFormulario" id="editarOTLiderProyecto">
                                         <img src="../Media/Iconos/editar.png" alt="local-icon" width="20" height="20" class="local-icon">
                                         <span>Editar OT</span>
                                     </button>
-                                    <button class="BotonesFormulario" id="verDatosBtn">
+                                    <!-- <button class="BotonesFormulario" id="verDatosBtn">
                                         <img src="../Media/Iconos/PropuestasForms.png" alt="local-icon" width="20" height="20" class="local-icon">
                                         <span>Datos Propuesta</span>
-                                    </button>
+                                    </button> -->
                                 </div>
                             </div>
     
                             <!-- Form 1: ParteFormularioOT -->
                             <form id="form1" class="ParteFormularioOT">
                                 <div class="form-row">
+                                    <input type="hidden" id="id_Proyecto" name="id_Proyecto" value="">
+                                    <input type="hidden" id="id_usuario_bull" name="id_usuario_bull" value="">
                                     <div class="form-group">
                                         <label for="LiderProyecto">Lider Proyecto</label>
                                         <input type="text" id="LiderProyecto" name="LiderProyecto" readonly>
@@ -83,9 +281,9 @@
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="Brief">Brief</label>
+                                        <label for="nombreBrief">Brief</label>
                                         <div class="scrollable-container">
-                                            <textarea id="Brief" name="Brief" readonly></textarea>
+                                            <textarea id="nombreBrief" name="nombreBrief" readonly></textarea>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -94,57 +292,45 @@
                                             <textarea id="ObjetivosBrief" name="ObjetivosBrief" readonly></textarea>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="ObservacionesOT">Observaciones OT - Comercial</label>
-                                        <div class="scrollable-container">
-                                            <textarea id="ObservacionesOT" name="ObservacionesOT" readonly></textarea>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="TipoCliente">Tipo de Cliente</label>
-                                        <input type="text" id="TipoCliente" name="TipoCliente" readonly>
+                                        <label for="TipoClienteOT">Tipo de Cliente</label>
+                                        <input type="text" id="TipoClienteOT" name="TipoClienteOT" readonly>
                                     </div>
                                     <div class="form-group">
-                                        <label for="Entregables">Entregables</label>
-                                        <input type="text" id="Entregables" name="Entregables" readonly>
+                                        <label for="EntregablesBrief">Entregables</label>
+                                        <input type="text" id="EntregablesBrief" name="EntregablesBrief" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="DateEntregaComercial">Fecha Entrega Comercial</label>
-                                        <input type="date" id="DateEntregaComercial" name="DateEntregaComercial" readonly>
+                                        <input type="datetime-local" id="DateEntregaComercial" name="DateEntregaComercial" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="DateFechaSocializacion">Fecha Socialización</label>
-                                        <input type="date" id="DateFechaSocializacion" name="DateFechaSocializacion" readonly>
+                                        <input type="datetime-local" id="DateFechaSocializacion" name="DateFechaSocializacion" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="DateEntregaLink">Fecha Entrega Link</label>
-                                        <input type="date" id="DateEntregaLink" name="DateEntregaLink" readonly>
+                                        <input type="datetime-local" id="DateEntregaLink" name="DateEntregaLink" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="DatosAdicionales">Datos Adicionales</label>
-                                        <div class="custom-file-container">
-                                            <input type="file" id="ArchivosAdjuntosBrief" name="ArchivosAdjuntosBrief" style="display: none;">
-                                            <span class="file-name">No se ha seleccionado ningún archivo</span>
-                                        </div>
+                                    <label for="DatosAdicionales">Datos Adicionales</label>
+                                        <input type="text" id="DatosAdicionales" name="DatosAdicionales" readonly>
                                     </div>
                                     <div class="form-group">
-                                        <label for="Artes">Artes</label>
-                                        <div class="custom-file-container">
-                                            <input type="file" id="fileUpload" name="fileUpload" style="display: none;">
-                                            <span class="file-name">No se ha seleccionado ningún archivo</span>
-                                        </div>
+                                        <label for="artesCreativo">Artes</label>
+                                        <input type="text" id="artesCreativo" name="artesCreativo" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="link">Link</label>
-                                        <input type="text" id="link" name="link" readonly>
+                                        <label for="linkProyecto">Link</label>
+                                        <input type="text" id="linkProyecto" name="linkProyecto" readonly>
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -155,6 +341,15 @@
                                     <div class="form-group">
                                         <label for="HorasExtra">Horas Extra</label>
                                         <input type="text" id="HorasExtra" name="HorasExtra" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="EstadoProyecto">Estado del Proyecto</label>
+                                        <select id="EstadoProyecto" name="EstadoProyecto"  placeholder="Ingrese la Descipción del Proyecto" disabled>
+                                            <option value="" select></option>
+                                            <option value="Sin Asignar">Sin Asignar</option>
+                                            <option value="En Producción" >En Producción</option>
+                                            <option value="Finalizados" >Finalizados</option>
+                                        </select>
                                     </div>
                                 </div>
                             </form>
@@ -210,33 +405,87 @@
                                         <input type="date" id="DateEntregaEconomica" name="DateEntregaEconomica" readonly>
                                     </div>
                                 </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="ArchivosAdjuntosComercial">Archivos Enviados por el Cliente</label>
-                                        <input type="text" id="ArchivosAdjuntosComercial" name="ArchivosAdjuntosComercial" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="NecesidadOT">Necesita OT</label>
-                                        <input type="text" id="NecesidadOT" name="NecesidadOT" readonly>
-                                    </div>
-                                </div>
                             </form>
                         </div>
                     </div>
                     <div class="ContactosCreados">
                         <div class="MostrarListaDesplegable">
                             <div class="InputFiltrar">
-                                <input type="text" id="searchInput" placeholder="Buscar Propuestas...">
+                                <input type="text" placeholder="Buscar contactos...">
                             </div>
-                            <div class="Lista">
+                            <div class="Lista" id="listaProyectos">
                                 <ul>
-                                    <li>
-                                        <div class="user-item">
-                                            <div class="NombreContacto" style="font-size: 14px; font-weight: 600;">Juan Pérez</div>
-                                            <div class="CargoContacto" style="font-size: 13px; color: #262626;">Gerente de Ventas</div>
-                                            <div class="EmpresaContacto" style="font-size: 13px; color: #262626;">Empresa XYZ</div>
-                                        </div>
-                                    </li>
+                                <?php
+                                    if (!empty($info_completa) && is_array($info_completa)) {
+                                        echo '<div class="Lista" id="listaProyectos">';
+                                        echo '<ul>';
+                                        
+                                        foreach ($info_completa as $id_contacto => $contacto) {
+                                            if (isset($contacto['proyectos']) && is_array($contacto['proyectos'])) {
+                                                foreach ($contacto['proyectos'] as $proyectos) {
+                                                    foreach ($proyectos as $proyecto) {
+                                                        echo '<li>';
+                                                        echo '<div class="propuesta-item" '
+                                                            //Valores para Datos Adicionales
+                                                            . 'data-id_proyecto="' . htmlspecialchars($proyecto["id"] ?? 'N/A') . '" '
+                                                            . 'data-nombreProyecto="' . htmlspecialchars($proyecto["nombreProyecto"] ?? 'N/A') . '" '
+                                                            . 'data-descripcionProyecto="' . htmlspecialchars($proyecto["descripcionProyecto"] ?? 'N/A') . '" '
+                                                            . 'data-unidadNegocio="' . htmlspecialchars($proyecto["id_unidadNegocio"] ?? 'N/A') . '" '
+                                                            . 'data-formatoProceso="' . htmlspecialchars($proyecto["formatoProceso"] ?? 'N/A') . '" '
+                                                            . 'data-estadoPropuesta="' . htmlspecialchars($proyecto["estadoPropuesta"] ?? 'N/A') . '" '
+                                                            . 'data-ciudadImpacto="' . htmlspecialchars($proyecto["CiudadesImpacto"] ?? 'N/A') . '" '
+                                                            . 'data-valorPropuesta="' . htmlspecialchars($proyecto["valorProyecto"] ?? 'N/A') . '" '
+                                                            . 'data-nombreUsuario="' . htmlspecialchars($proyecto["NombreUsuario"] ?? 'N/A') . '" '
+                                                            . 'data-id_usuario_bull="' . htmlspecialchars($proyecto["id_user"] ?? 'N/A') . '" '
+                                                            . 'data-fechaEconomica="' . htmlspecialchars($proyecto["dateEntregaEconomicaCliente"] ?? 'N/A') . '" '
+
+                                                            //Valores para la OT
+                                                            . 'data-liderProyecto="' . htmlspecialchars($proyecto["NombreLider"] ?? 'N/A') . '" '
+                                                            . 'data-creativoProyecto="' . htmlspecialchars($proyecto["CreativosOT"] ?? 'N/A') . '" '
+                                                            . 'data-nombreBrief="' . htmlspecialchars($proyecto["nombreBrief"] ?? 'N/A') . '" '
+                                                            . 'data-objetivoBrief="' . htmlspecialchars($proyecto["objetivoBrief"] ?? 'N/A') . '" '
+                                                            . 'data-tipoCliente="' . htmlspecialchars($proyecto["TipoCliente"] ?? 'N/A') . '" '
+                                                            . 'data-entregables="' . htmlspecialchars($proyecto["tipoEntregables"] ?? 'N/A') . '" '
+                                                            . 'data-dateEntregaComercial="' . htmlspecialchars($proyecto["dateEntrega"] ?? 'N/A') . '" '
+                                                            . 'data-dateSocializacion="' . htmlspecialchars($proyecto["dateSocializacion"] ?? 'N/A') . '" '
+                                                            . 'data-dateEntregaLink="' . htmlspecialchars($proyecto["dateLinkProyecto"] ?? 'N/A') . '" '
+                                                            . 'data-datosAdicionales="' . htmlspecialchars($proyecto["datosAdicionalesBrief"] ?? 'N/A') . '" '
+                                                            . 'data-artesProyecto="' . htmlspecialchars($proyecto["artesProyecto"] ?? 'N/A') . '" '
+                                                            . 'data-linkProyecto="' . htmlspecialchars($proyecto["linkProyecto"] ?? 'N/A') . '" '
+                                                            . 'data-horasTrabajadas="' . htmlspecialchars($proyecto["horasTrabajadas"] ?? 'N/A') . '" '
+                                                            . 'data-horasExtras="' . htmlspecialchars($proyecto["horasExtras"] ?? 'N/A') . '" '
+                                                            . 'data-EstadoPropuestas="' . htmlspecialchars($proyecto["EstadoProyecto"] ?? 'N/A') . '" '
+                                                            . '>';
+
+                                                        // Contenido visible del proyecto
+                                                        echo '<div class="NombreProyecto" id="NombreProyecto" style="font-size: 14px; font-weight: 600;">'
+                                                            . htmlspecialchars($proyecto["nombreProyecto"] ?? 'No disponible') . '</div>';
+
+                                                        echo '<div class="NombreUsuario" id="NombreUsuario" style="font-size: 14px; font-weight: 450;">'
+                                                            . htmlspecialchars($proyecto["NombreUsuario"] ?? 'No disponible') . '</div>';
+
+                                                        echo '<div class="Empresa" id="Empresa" style="font-size: 14px; font-weight: 450;">'
+                                                            . htmlspecialchars($contacto["empresa"] ?? 'No disponible') . '</div>';
+                                                        
+                                                        echo '<div class="EstadoProyecto" style="font-size: 13px; color: #262626;">'
+                                                            . htmlspecialchars($proyecto["EstadoProyecto"] ?? 'Sin Asignar') . '</div>';
+
+                                                        echo '<div class="FechaCreacion" style="font-size: 13px; color: #262626;">'
+                                                            . htmlspecialchars($proyecto["Created"] ?? 'No disponible') . '</div>';
+
+                                                        echo '</div>'; // Cerrar propuesta-item
+                                                        echo '</li>';
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        
+                                        echo '</ul>';
+                                        echo '</div>'; // Cerrar listaProyectos
+                                    } else {
+                                        //echo '<p>No se encontraron proyectos para mostrar.</p>';
+                                    }
+                                    ?>
                                 </ul>
                             </div>
                         </div>
@@ -245,6 +494,5 @@
             </div>
         </div>
     </div>
-    <script src="/Creativo//JavaScript/FuncionalidadCreativo.js"></script>
 </body>
 </html>

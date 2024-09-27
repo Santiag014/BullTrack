@@ -65,45 +65,67 @@ $sql_1 = "SELECT
     SeguimientoCreativo.TipoCliente,
     SeguimientoCreativo.EstadoProyecto,
     SeguimientoCreativo.Created,
-    -- Subconsulta para obtener las horas trabajadas del usuario 13
-    (SELECT SUM(CreativosHoras.horasTrabajadas) 
-     FROM CreativosHoras 
-     WHERE CreativosHoras.usuario_id = $id_USER
-       AND CreativosHoras.id_seguimiento_creativo = SeguimientoCreativo.id) AS horasTrabajadas,
-    -- Subconsulta para obtener las horas extras del usuario 13
-    (SELECT SUM(CreativosHoras.horasExtras) 
-     FROM CreativosHoras 
-     WHERE CreativosHoras.usuario_id = $id_USER
-       AND CreativosHoras.id_seguimiento_creativo = SeguimientoCreativo.id) AS horasExtras,
-    -- Agrupar creativos y líderes
-    GROUP_CONCAT(CASE WHEN CreativosHoras.rolCreativos = 1 THEN Usuarios.NombreUsuario END) AS NombreLider,
-    GROUP_CONCAT(CASE WHEN CreativosHoras.rolCreativos = 0 THEN Usuarios.NombreUsuario END) AS CreativosOT,
+    SUM(CreativosHoras.horasTrabajadas) AS horasTrabajadas,  -- Asegúrate de sumar correctamente
+    SUM(CreativosHoras.horasExtras) AS horasExtras,  -- Sumar horas extras
+    GROUP_CONCAT(DISTINCT CASE WHEN CreativosHoras.rolCreativos = 1 THEN Usuarios.NombreUsuario END) AS NombreLider,
+    GROUP_CONCAT(DISTINCT CASE WHEN CreativosHoras.rolCreativos = 0 THEN Usuarios.NombreUsuario END) AS CreativosOT,
     u.NombreUsuario
-FROM SeguimientoComercial 
-JOIN contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
-JOIN Usuarios u ON contacto_crm.id_usuario = u.id  -- Corrige la unión con Usuarios
-INNER JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
-LEFT JOIN CreativosHoras ON SeguimientoCreativo.id = CreativosHoras.id_seguimiento_creativo
-LEFT JOIN Usuarios ON CreativosHoras.usuario_id = Usuarios.id
-WHERE SeguimientoComercial.isDeleted = 0 
-  AND SeguimientoCreativo.EstadoProyecto IN('Sin Asignar', 'En Producción')
-  -- Filtro para el usuario específico (creativo) 13
-  AND SeguimientoCreativo.id IN (
-      SELECT id_seguimiento_creativo
-      FROM CreativosHoras
-      WHERE rolCreativos = 0 
-        AND usuario_id = $id_USER)
-GROUP BY 
-    SeguimientoCreativo.id;
-";
- 
+FROM 
+    SeguimientoComercial 
+JOIN 
+    contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
+JOIN 
+    Usuarios u ON contacto_crm.id_usuario = u.id  -- Corrige la unión con Usuarios
+INNER JOIN 
+    SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
+LEFT JOIN 
+    CreativosHoras ON SeguimientoCreativo.id = CreativosHoras.id_seguimiento_creativo
+LEFT JOIN 
+    Usuarios ON CreativosHoras.usuario_id = Usuarios.id
+WHERE 
+    SeguimientoComercial.isDeleted = 0
+GROUP BY
+    SeguimientoCreativo.id,
+    SeguimientoComercial.id_user,
+    SeguimientoComercial.id_unidadNegocio,
+    SeguimientoComercial.dateCreated,
+    SeguimientoComercial.nombreProyecto,
+    SeguimientoComercial.descripcionProyecto,
+    SeguimientoComercial.valorProyecto,
+    SeguimientoComercial.estadoPropuesta,
+    SeguimientoComercial.dateEntregaEconomicaCliente,
+    SeguimientoComercial.medioContacto1,
+    SeguimientoComercial.medioContacto2,
+    SeguimientoComercial.observacionProyecto1,
+    SeguimientoComercial.observacionProyecto2,
+    SeguimientoComercial.archivosAdjuntos,
+    SeguimientoComercial.id_contacto,
+    SeguimientoComercial.formatoProceso,
+    SeguimientoComercial.CiudadesImpacto,
+    contacto_crm.nit_contacto, 
+    contacto_crm.razon_social_contacto,
+    contacto_crm.id_contactos_CRM,
+    SeguimientoCreativo.dateEntrega,
+    SeguimientoCreativo.nombreBrief,
+    SeguimientoCreativo.objetivoBrief,
+    SeguimientoCreativo.tipoEntregables,
+    SeguimientoCreativo.artesProyecto,
+    SeguimientoCreativo.linkProyecto,
+    SeguimientoCreativo.dateLinkProyecto,
+    SeguimientoCreativo.datosAdicionalesBrief,
+    SeguimientoCreativo.dateEntregaCliente,
+    SeguimientoCreativo.id_archivoAdjuntoCreativo,
+    SeguimientoCreativo.dateSocializacion,
+    SeguimientoCreativo.TipoCliente,
+    SeguimientoCreativo.EstadoProyecto,
+    SeguimientoCreativo.Created,
+    u.NombreUsuario;";
+
 $resultado2 = mysqli_query($conexion_bull, $sql_1);
-
 //debug_print("Consulta BullTrack ejecutada.");
 
-$proyectos_bulltrack = []; // Array para almacenar los resultados de BullTrack
-
-//debug_print("Consulta BullTrack ejecutada.");
+// Inicializa el array para almacenar los resultados de BullTrack
+$proyectos_bulltrack = []; 
 
 // Verifica si hay resultados
 if ($resultado2) {
@@ -131,7 +153,10 @@ if ($resultado2) {
     //debug_print("Error en la consulta BullTrack: " . mysqli_error($conexion_bull));
 }
 
+// Var_dump para depurar
 //var_dump($proyectos_bulltrack);
+//debug_print("Total de proyectos en BullTrack: " . count($proyectos_bulltrack));
+ 
 // Conexión a CRM
 include '../ConexionesBD/ConexcionDBcrm.php';
 //include '../Creativo/Funcionalidad/BackendLideres/consultaCreativoLider.php';
@@ -177,7 +202,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
     if (!$resultado) {
     }
 }
-///var_dump($info_completa);
+//var_dump($info_completa);
 ?>
 
 <!DOCTYPE html>
@@ -188,7 +213,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
     <title>BullTrack</title>
     <link rel="icon" href="../Media/Iconos/logo512.png" type="image/x-icon">
     <link rel="stylesheet" href="../EstilosFuncionalidad/styles.css">
-    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadCreativo.js" defer></script>
+    <script src="./Funcionalidad/Funcionalidad-JS/FuncionalidadAsiganrCrearivo.js" defer></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -206,7 +231,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                     <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>       
                 </div>
                 <div class="InformacionModulos">
-                    <?php if ($id_rol == 4): ?>
+                <?php if ($id_rol == 4): ?>
                         <div class="ModulosDash" onclick="AsignarProyectos(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                             <img src="../Media/Iconos/asignar_boton.png" alt="local-icon" width="20" height="20" class="local-icon">
                             <span>Asignar OTs</span>
@@ -251,12 +276,12 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                         <div class="FormPropuestas">
                             <div class="ParteSuperiorPropuesta">
                                 <div class="InformacionPropuesta">
-                                    <h3>Propuestas Creativos</h3>
+                                    <h3>Asignar Ots</h3>
                                 </div>
                                 <div class="BotonesInteraccion">
-                                    <button class="BotonesFormulario" id="editarOTLiderProyecto">
+                                    <button class="BotonesFormulario" id="editarOTLider" data-creativoProyecto="Creativo_1,Creativo_4,Creativo_5">
                                         <img src="../Media/Iconos/editar.png" alt="local-icon" width="20" height="20" class="local-icon">
-                                        <span>Editar OT</span>
+                                        <span>Asignar OT</span>
                                     </button>
                                     <!-- <button class="BotonesFormulario" id="verDatosBtn">
                                         <img src="../Media/Iconos/PropuestasForms.png" alt="local-icon" width="20" height="20" class="local-icon">
@@ -271,11 +296,19 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                                     <input type="hidden" id="id_Proyecto" name="id_Proyecto" value="">
                                     <div class="form-group">
                                         <label for="LiderProyecto">Lider Proyecto</label>
-                                        <input type="text" id="LiderProyecto" name="LiderProyecto" readonly>
+                                        <select id="LiderProyecto" name="LiderProyecto" disabled>
+                                            <option value="">Seleccione un líder</option>
+                                            <!-- Las opciones se cargarán dinámicamente aquí -->
+                                        </select>
+                                        <input type="text" id="soloLider" name="soloLider" readonly style="display: block;" >
                                     </div>
                                     <div class="form-group">
-                                        <label for="CreativoProyecto">Creativo</label>
-                                        <input type="text" id="CreativoProyecto" name="CreativoProyecto" readonly>
+                                        <label for="solo">Creativos</label>
+                                        <div id="tagsContainer" style="border: 1px solid #fff; padding: 5px; border-radius: 5px; display: inline-block; width: 100%; position: relative;">
+                                            <span id="selectedOptions" style="display: inline-block;"></span>
+                                            <select id="CreativosProyecto" name="CreativosProyecto[]" multiple style="width: 100%; height: auto; position: absolute; top: 100%; left: 0; z-index: 10; display: none;" disabled></select>
+                                        </div>
+                                        <input type="text" id="solo" name="solo" readonly style="display: block;" >
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -294,12 +327,17 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="TipoClienteOT">Tipo de Cliente</label>
-                                        <input type="text" id="TipoClienteOT" name="TipoClienteOT" readonly>
+                                        <label for="tipoCliente">Tipo Cliente</label>
+                                        <select id="tipoCliente" name="tipoCliente"  placeholder="Ingrese la Descipción del Proyecto" disabled>
+                                            <option value="" select></option>
+                                            <option value="Cliente Potencial">Cliente Potencial</option>
+                                            <option value="Cliente Nuevo" >Cliente Nuevo</option>
+                                            <option value="Cliente Clave" >Cliente Clave</option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="EntregablesBrief">Entregables</label>
-                                        <input type="text" id="EntregablesBrief" name="EntregablesBrief" readonly>
+                                        <input type="text" id="EntregablesBrief" name="EntregablesBrief" readonly >
                                     </div>
                                 </div>
                                 <div class="form-row">
@@ -342,8 +380,13 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                                         <input type="text" id="HorasExtra" name="HorasExtra" readonly>
                                     </div>
                                     <div class="form-group">
-                                        <label for="EstadoProyecto">Estado Propuesta</label>
-                                        <input type="text" id="EstadoProyecto" name="EstadoProyecto" readonly>
+                                        <label for="EstadoProyecto">Estado del Proyecto</label>
+                                        <select id="EstadoProyecto" name="EstadoProyecto"  placeholder="Ingrese la Descipción del Proyecto" disabled>
+                                            <option value="" select></option>
+                                            <option value="Sin Asignar">Sin Asignar</option>
+                                            <option value="En Producción" >En Producción</option>
+                                            <option value="Finalizados" >Finalizados</option>
+                                        </select>
                                     </div>
                                 </div>
                             </form>
@@ -405,7 +448,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                     <div class="ContactosCreados">
                         <div class="MostrarListaDesplegable">
                             <div class="InputFiltrar">
-                                <input type="text" placeholder="Buscar contactos...">
+                                <input type="text" placeholder="Buscar OT...">
                             </div>
                             <div class="Lista" id="listaProyectos">
                                 <ul>
@@ -439,7 +482,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                                                             . 'data-objetivoBrief="' . htmlspecialchars($proyecto["objetivoBrief"] ?? 'N/A') . '" '
                                                             . 'data-tipoCliente="' . htmlspecialchars($proyecto["TipoCliente"] ?? 'N/A') . '" '
                                                             . 'data-entregables="' . htmlspecialchars($proyecto["tipoEntregables"] ?? 'N/A') . '" '
-                                                            . 'data-dateEntregaComercial="' . htmlspecialchars($proyecto["dateEntrega"] ?? 'N/A') . '" '
+                                                            . 'data-dateEntregaComercial="' . htmlspecialchars($proyecto["id_user"] ?? 'N/A') . '" '
                                                             . 'data-dateSocializacion="' . htmlspecialchars($proyecto["dateSocializacion"] ?? 'N/A') . '" '
                                                             . 'data-dateEntregaLink="' . htmlspecialchars($proyecto["dateLinkProyecto"] ?? 'N/A') . '" '
                                                             . 'data-datosAdicionales="' . htmlspecialchars($proyecto["datosAdicionalesBrief"] ?? 'N/A') . '" '
@@ -476,7 +519,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                                         echo '</ul>';
                                         echo '</div>'; // Cerrar listaProyectos
                                     } else {
-                                        //echo '<p>No se encontraron proyectos para mostrar.</p>';
+                                        echo '<p>No se encontraron proyectos para mostrar.</p>';
                                     }
                                     ?>
                                 </ul>

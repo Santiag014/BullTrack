@@ -38,37 +38,31 @@ try {
 
     // Verificar si la solicitud es POST
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        throw new Exception(message: "Método de solicitud no válido");
+        throw new Exception("Método de solicitud no válido");
     }
 
-    // Capturar los valores del formulario
-    $nombreProyecto = $_POST['NombreProyecto'] ?? '';
-    $descripcionProyecto = $_POST['DescipcionProyecto'] ?? '';
-    $unidadNegocio = $_POST['UnidadNegocio'] ?? '';
-    $formatoProceso = $_POST['FormatoProceso'] ?? '';
-    $estadoPropuesta = $_POST['estadoPropuesta'] ?? '';
-    $ciudadesImpacto = $_POST['CiudadesImpacto'] ?? '';
-    $valorPropuesta = $_POST['ValorPropuesta'] ?? '';
-    $fechaEntregaEconomica = $_POST['FechaEntregaEconomica'] ?? '';
-    $contacto1 = $_POST['Contacto_1'] ?? '';
-    $contacto2 = $_POST['Contacto_2'] ?? '';
-    $observacion1 = $_POST['Observación_1'] ?? '';
-    $observacion2 = $_POST['Observación_2'] ?? '';
-    $archivosAdjuntosComercial = $_POST['ArchivosAdjuntosComercial'] ?? '';
-    $necesidadOT = $_POST['NecesidadOTSelect'] ?? '';
-    $id_contacto_crm = $_POST['id_contacto_crm'] ?? '';
+    // Variables para el segundo inserto (SeguimientoCreativo)
+    $brief = $_POST['Brief'] ?? '';
+    $objetivosBrief = $_POST['ObjetivosBrief'] ?? '';
+    $tipoCliente = $_POST['tipoCliente'] ?? '';
+    $entregables = $_POST['Entregables'] ?? '';
+    $fechaEntregaCliente = $_POST['dateEntregaCliente'] ?? '';
+    $datosAdicionales = $_POST['dateEntregaCliente'] ?? '';
+    $id_proyecto = $_POST['id'] ?? null;
+
+    $EstadoProyecto = 'Sin Asignar';
 
     // Iniciar una transacción para asegurar la consistencia en las inserciones
     $conexion_bull->begin_transaction();
 
-    // Inserción en la tabla SeguimientoComercial
-    $sql1 = "INSERT INTO SeguimientoComercial 
-            (id_user, nombreProyecto, descripcionProyecto, valorProyecto, estadoPropuesta, dateEntregaEconomicaCliente, medioContacto1, medioContacto2, observacionProyecto1, observacionProyecto2, id_contacto, id_unidadNegocio, formatoProceso, archivosAdjuntos, CiudadesImpacto, isDeleted) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')";
+    // Inserción en la tabla Seguimiento Creativo
+    $sql2 = "INSERT INTO SeguimientoCreativo (nombreBrief, objetivoBrief, TipoCliente, tipoEntregables, dateEntrega, id_comercial, Created, EstadoProyecto) 
+    VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)";
 
-    $stmt1 = $conexion_bull->prepare($sql1);
-    $stmt1->bind_param("isssssssssssssi", $id_BULL, $nombreProyecto, $descripcionProyecto, $valorPropuesta, $estadoPropuesta, $fechaEntregaEconomica, $contacto1, $contacto2, $observacion1, $observacion2, $id_contacto_crm, $unidadNegocio, $formatoProceso, $archivosAdjuntosComercial, $ciudadesImpacto);
-    $stmt1->execute();
+
+    $stmt2 = $conexion_bull->prepare($sql2);
+    $stmt2->bind_param("sssssss", $brief, $objetivosBrief, $tipoCliente, $entregables, $fechaEntregaCliente, $id_proyecto, $EstadoProyecto);
+    $stmt2->execute();
 
     // Confirmar la transacción
     $conexion_bull->commit();

@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     forgetPassword.addEventListener('click', () => {
-        resetMessage.textContent = 'Solicitud enviada a Data. \nPor favor, revisa tu correo electrónico más tarde.';
+        resetMessage.textContent = 'Contectese con Data, para Recuperar la Contraseña. \nPor favor';
     });
 
     emailInput.addEventListener('input', () => {

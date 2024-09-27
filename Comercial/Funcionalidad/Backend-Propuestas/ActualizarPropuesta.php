@@ -1,12 +1,18 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
+// Mostrar todos los errores y advertencias
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// Establecer el tipo de contenido como JSON
 header('Content-Type: application/json');
 
 try {
+    
     include '../../../ConexionesBD/ConexionBDBullTrack.php';
 
+    // Iniciar la sesión
     session_start();
 
     if (isset($_SESSION['id'])) {
@@ -42,13 +48,6 @@ try {
         $observacion1 = $_POST['Observación_1'];
         $observacion2 = $_POST['Observación_2'];
         $archivosAdjuntosComercial = $_POST['ArchivosAdjuntosComercial'];
-        $necesidadOT = $_POST['NecesidadOTSelect'];
-
-        $brief = $_POST['Brief'];
-        $objetivosBrief = $_POST['ObjetivosBrief'];
-        $tipoCliente = $_POST['tipoCliente'];
-        $entregables = $_POST['Entregables'];
-        $fechaEntregaCliente = $_POST['dateEntregaCliente'];
 
         // Verificar si id_proyecto existe en SeguimientoComercial
         $sqlVerify = "SELECT id FROM SeguimientoComercial WHERE id = ?";
@@ -76,59 +75,14 @@ try {
                      id_unidadNegocio = ?, 
                      formatoProceso = ?, 
                      archivosAdjuntos = ?, 
-                     NecesitaOT = ?, 
                      CiudadesImpacto = ? 
                  WHERE id = ?";
 
         $conexion_bull->begin_transaction();
         
         $stmt1 = $conexion_bull->prepare($sql1);
-        $stmt1->bind_param("ssssssssssssssi", $nombreProyecto, $descripcionProyecto, $valorPropuesta, $estadoPropuesta, $fechaEntregaEconomica, $contacto1, $contacto2, $observacion1, $observacion2, $unidadNegocio, $formatoProceso, $archivosAdjuntosComercial, $necesidadOT, $ciudadesImpacto, $id_proyecto);
+        $stmt1->bind_param("sssssssssssssi", $nombreProyecto, $descripcionProyecto, $valorPropuesta, $estadoPropuesta, $fechaEntregaEconomica, $contacto1, $contacto2, $observacion1, $observacion2, $unidadNegocio, $formatoProceso, $archivosAdjuntosComercial, $ciudadesImpacto, $id_proyecto);
         $stmt1->execute();
-
-        if ($necesidadOT === 'Si') {
-            $sqlCheck = "SELECT id_comercial FROM SeguimientoCreativo WHERE id_comercial = ?";
-            $stmtCheck = $conexion_bull->prepare($sqlCheck);
-            $stmtCheck->bind_param("i", $id_proyecto);
-            $stmtCheck->execute();
-            $stmtCheck->store_result();
-
-            if ($stmtCheck->num_rows > 0) {
-                $sql2 = "UPDATE SeguimientoCreativo 
-                         SET 
-                             nombreBrief = ?, 
-                             objetivoBrief = ?, 
-                             TipoCliente = ?, 
-                             tipoEntregables = ?, 
-                             dateEntrega = ? 
-                         WHERE id_comercial = ?";
-                $stmt2 = $conexion_bull->prepare($sql2);
-                $stmt2->bind_param("sssssi", $brief, $objetivosBrief, $tipoCliente, $entregables, $fechaEntregaCliente, $id_proyecto);
-                $stmt2->execute();
-            } else {
-                $sql2 = "INSERT INTO SeguimientoCreativo (nombreBrief, objetivoBrief, TipoCliente, tipoEntregables, dateEntrega, id_comercial) VALUES (?, ?, ?, ?, ?, ?)";
-                $stmt2 = $conexion_bull->prepare($sql2);
-                $stmt2->bind_param("sssssi", $brief, $objetivosBrief, $tipoCliente, $entregables, $fechaEntregaCliente, $id_proyecto);
-                $stmt2->execute();
-            }
-            $stmtCheck->close();
-        } elseif ($necesidadOT === 'No') {
-            $sqlCheck = "SELECT id_comercial FROM SeguimientoCreativo WHERE id_comercial = ?";
-            $stmtCheck = $conexion_bull->prepare($sqlCheck);
-            $stmtCheck->bind_param("i", $id_proyecto);
-            $stmtCheck->execute();
-            $stmtCheck->store_result();
-
-            if ($stmtCheck->num_rows > 0) {
-                $sqlDelete = "UPDATE SeguimientoCreativo SET isDeleted = 1, dateDeletd = NOW() WHERE id_comercial = ?";
-                $stmtDelete = $conexion_bull->prepare($sqlDelete);
-                $stmtDelete->bind_param("i", $id_proyecto);
-                $stmtDelete->execute();
-                $stmtDelete->close();
-            }
-            $stmtCheck->close();
-        }
-
         $conexion_bull->commit();
 
         $response = ["success" => true, "message" => "Actualización exitosa"];
@@ -151,6 +105,5 @@ try {
         $conexion_bull->close();
     }
 }
-
 echo json_encode($response);
 exit;

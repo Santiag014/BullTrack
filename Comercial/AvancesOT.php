@@ -40,7 +40,7 @@ if ($resultado) {
             $id_contacto = $contacto['id'];
 
             // Consulta adicional en BullTrack para obtener información relacionada
-            $sql_1 = "SELECT      
+            $sql_1 = "SELECT
                 SeguimientoComercial.id,
                 SeguimientoComercial.id_user,
                 SeguimientoComercial.id_unidadNegocio,
@@ -57,7 +57,6 @@ if ($resultado) {
                 SeguimientoComercial.archivosAdjuntos,
                 SeguimientoComercial.id_contacto,
                 SeguimientoComercial.formatoProceso,
-                SeguimientoComercial.NecesitaOT,
                 SeguimientoComercial.CiudadesImpacto,
                 contacto_crm.nit_contacto, 
                 contacto_crm.razon_social_contacto,
@@ -66,8 +65,6 @@ if ($resultado) {
                 SeguimientoCreativo.nombreBrief,
                 SeguimientoCreativo.objetivoBrief,
                 SeguimientoCreativo.tipoEntregables,
-                SeguimientoCreativo.id_liderProyectoOT,
-                SeguimientoCreativo.id_creativoOT,
                 SeguimientoCreativo.artesProyecto,
                 SeguimientoCreativo.linkProyecto,
                 SeguimientoCreativo.dateLinkProyecto,
@@ -75,11 +72,18 @@ if ($resultado) {
                 SeguimientoCreativo.dateEntregaCliente,
                 SeguimientoCreativo.id_archivoAdjuntoCreativo,
                 SeguimientoCreativo.dateSocializacion,
-                SeguimientoCreativo.TipoCliente
+                SeguimientoCreativo.TipoCliente,
+                SeguimientoCreativo.EstadoProyecto,
+                SeguimientoCreativo.Created,
+                GROUP_CONCAT(CASE WHEN CreativosHoras.rolCreativos = 1 THEN Usuarios.NombreUsuario END) AS NombreLider,
+                GROUP_CONCAT(CASE WHEN CreativosHoras.rolCreativos = 0 THEN Usuarios.NombreUsuario END) AS CreativosOT
             FROM SeguimientoComercial 
             JOIN contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
-            LEFT JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
-            WHERE contacto_crm.id_contactos_CRM = $id_contacto AND SeguimientoComercial.isDeleted = 0 AND SeguimientoComercial.NecesitaOT = 'Si' ;";
+            INNER JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial  -- Cambiado a INNER JOIN
+            LEFT JOIN CreativosHoras ON SeguimientoCreativo.id = CreativosHoras.id_seguimiento_creativo
+            LEFT JOIN Usuarios ON CreativosHoras.usuario_id = Usuarios.id
+            WHERE SeguimientoComercial.isDeleted = 0 AND contacto_crm.id_contactos_CRM = $id_contacto
+            GROUP BY SeguimientoCreativo.id;";
             
             $resultado2 = mysqli_query($conexion_bull, $sql_1);
 
@@ -128,16 +132,18 @@ if ($resultado) {
 <body>
     <div class="background-image" style="background-image: url(../Media/FonfoDash.jpg);"></div>
     <div class="GridContanier">
+
         <div class="GridInformacionUsuario">
             <div class="Marca">
                 <img src="../Media/LogoBull_2.png" alt="FotoBullMarketing" class="logo_image_Dashboard">
             </div>
             <div class="InformacionDashboar">
                 <div class="FotoUsuarioDashboard">
-                    <div class="TipoGrafia_App"> <strong>BullTrack</strong> <br/> App Seguimiento Interno</div>
+                    <div class="TipoGrafia_App_Primnero"> <strong>BullTrack</strong></div>
+                    <div class="TipoGrafia_App">App Seguimiento Interno</div>
                     <img src="../Media/fotoPerfil.jpg" alt="FotoBullMarketing" class="logo_image_Dashboard">
                     <div class="TipoGrafia"><?php echo $NombreUsuario; ?></div>
-                    <div class="TipoGrafia"><?php echo $rol_user; ?></div>   
+                    <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>   
                 </div>
                 <div class="InformacionModulos">
                 <div class="ModulosDash" onclick="RedirigirHome(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
@@ -156,14 +162,26 @@ if ($resultado) {
                         <img src="../Media/Iconos/Avances.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Avances OT</span>
                     </div>
+                    <div class="ModulosDash" onclick="RedirigirProduccon(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                        <img src="../Media/Iconos/produccion.png" alt="local-icon" width="20" height="20" class="local-icon">
+                        <span>Producción</span>
+                    </div>
+                    <!-- Mostrar Dashboard Gerencial solo si id_rol es 3 -->
+                    <?php if ($id_rol == 3 || $id_rol == 6): ?>
+                        <div class="ModulosDash" onclick="RedirigirGerencia(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                            <img src="../Media/Iconos/gerencia.png" alt="local-icon" width="20" height="20" class="local-icon">
+                            <span>Dashboard Gerencial</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
+        
         <div class="GridHeaderApp">
             <!-- Breadcrumbs component will be rendered here -->
         </div>
         <div class="GridHeaderApp_2">
-            <div class="BotonSalir">
+            <div class="BotonSalir" onclick="RedirigirLogin()">
                 <img src="../Media/Iconos/Salir.png" alt="local-icon" width="20" height="20" class="local-icon">
                 <span>Salir</span>
             </div>
@@ -198,11 +216,11 @@ if ($resultado) {
                                         />
                                     </div>
                                     <div class="form-group">
-                                        <label for="CreativoProyecto">Creativo</label>
+                                        <label for="CreativosOT">Creativo</label>
                                         <input 
                                             type="text" 
-                                            id="CreativoProyecto" 
-                                            name="CreativoProyecto" 
+                                            id="CreativosOT" 
+                                            name="CreativosOT" 
                                             readonly
                                             placeholder="Creativos del Proyecto"
                                         />
@@ -344,7 +362,7 @@ if ($resultado) {
                                                         . 'data-fechaInicio="' . htmlspecialchars($fila["dateCreated"] ?? 'N/A') . '" '
                                                         . 'data-descripcionProyecto="' . htmlspecialchars($fila["descripcionProyecto"] ?? 'N/A') . '" '
                                                         . 'data-valorProyecto="' . htmlspecialchars($fila["valorProyecto"] ?? 'N/A') . '" '
-                                                        . 'data-estadoPropuesta="' . htmlspecialchars($fila["estadoPropuesta"] ?? 'N/A') . '" '
+                                                        . 'data-estadoProyecto="' . htmlspecialchars($fila["EstadoProyecto"] ?? 'N/A') . '" '
                                                         . 'data-dateEntregaEconomicaCliente="' . htmlspecialchars($fila["dateEntregaEconomicaCliente"] ?? 'N/A') . '" '
                                                         . 'data-medioContacto_1="' . htmlspecialchars($fila["medioContacto1"] ?? 'N/A') . '" '
                                                         . 'data-medioContacto_2="' . htmlspecialchars($fila["medioContacto2"] ?? 'N/A') . '" '
@@ -360,16 +378,13 @@ if ($resultado) {
                                                         . 'data-apellidoCliente="' . htmlspecialchars($contacto["apellido"] ?? 'N/A') . '" '
                                                         . 'data-apellidoCliente="' . htmlspecialchars($contacto["apellido"] ?? 'N/A') . '" '
                                                         . 'data-ciudadesImpacto="' . htmlspecialchars($fila["CiudadesImpacto"] ?? 'N/A') . '" '
-                                                        . 'data-NecesitaOT="' . htmlspecialchars($fila["NecesitaOT"] ?? 'N/A') . '" '
-
                                                         . 'data-nombreBrief="' . htmlspecialchars($fila["nombreBrief"] ?? 'N/A') . '" '
                                                         . 'data-objetivoBrief="' . htmlspecialchars($fila["objetivoBrief"] ?? 'N/A') . '" '
                                                         . 'data-tipoEntregable="' . htmlspecialchars($fila["tipoEntregables"] ?? 'N/A') . '" '
                                                         . 'data-tipoCliente="' . htmlspecialchars($fila["TipoCliente"] ?? 'N/A') . '" '
                                                         . 'data-dateEntregaComercial="' . htmlspecialchars($fila["dateEntrega"] ?? 'N/A') . '" '
-
-                                                        . 'data-liderProyecto="' . htmlspecialchars($fila["id_liderProyectoOT"] ?? 'N/A') . '" '
-                                                        . 'data-creativosOT="' . htmlspecialchars($fila["id_creativoOT"] ?? 'N/A') . '" '
+                                                        . 'data-liderProyecto="' . htmlspecialchars($fila["NombreLider"] ?? 'N/A') . '" '
+                                                        . 'data-creativosOT="' . htmlspecialchars($fila["CreativosOT"] ?? 'N/A') . '" '
                                                         . 'data-artesProyecto="' . htmlspecialchars($fila["artesProyecto"] ?? 'N/A') . '" '
                                                         . 'data-linkProyecto="' . htmlspecialchars($fila["linkProyecto"] ?? 'N/A') . '" '
                                                         . 'data-dateLinkProyecto="' . htmlspecialchars($fila["dateLinkProyecto"] ?? 'N/A') . '" '
@@ -377,34 +392,38 @@ if ($resultado) {
                                                         . 'data-dateEntregaCliente="' . htmlspecialchars($fila["dateEntregaCliente"] ?? 'N/A') . '" '
                                                         . 'data-dateSocializacion="' . htmlspecialchars($fila["dateSocializacion"] ?? 'N/A') . '" '
                                                         . 'data-tipoCliente="' . htmlspecialchars($fila["tipoCliente"] ?? 'N/A') . '" '
+                                                        . 'data-dateCreatedOT="' . htmlspecialchars($fila["Created"] ?? 'N/A') . '" '
                                                         . '>';
 
                                                     // Mostrar información del proyecto
                                                     echo '<div class="NombreProyecto" id="NombreProyecto" style="font-size: 14px; font-weight: 600;">'
                                                         . htmlspecialchars($fila["nombreProyecto"] ?? 'No disponible') . '</div>';
                                                     
-                                                    echo '<div class="ClienteProyecto"  style="font-size: 14px; font-weight: 600;">'
-                                                        . htmlspecialchars($contacto["nombre"] ?? 'No disponible') . ' - ' 
-                                                        . htmlspecialchars($contacto["apellido"] ?? 'No disponible') . '</div>';
+                                                    // echo '<div class="ClienteProyecto"  style="font-size: 14px; font-weight: 600;">'
+                                                    //     . htmlspecialchars($contacto["nombre"] ?? 'No disponible') . ' - ' 
+                                                    //     . htmlspecialchars($contacto["apellido"] ?? 'No disponible') . '</div>';
                                                     
                                                     echo '<div class="NombreEmpresa" style="font-size: 14px; color: #262626;">'
                                                         . htmlspecialchars($contacto["empresa"] ?? 'No disponible') . '</div>';
                                                     
                                                     echo '<div class="EstadoProyecto" style="font-size: 13px; color: #262626;">'
-                                                        . htmlspecialchars($fila["estadoPropuesta"] ?? 'No disponible') . '</div>';
+                                                        . htmlspecialchars($fila["EstadoProyecto"] ?? 'Sin Asignar') . '</div>';
+
+                                                        echo '<div class="EstadoProyecto" style="font-size: 13px; color: #262626;">'
+                                                        . htmlspecialchars($fila["Created"] ?? 'No disponible') . '</div>';
                                                     
                                                     // echo '<div class="FechaInicio" style="Sfont-size: 9px; color: #262626;">'
-                                                    //     . htmlspecialchars($fila["dateCreated"] ?? 'No disponible') . '</div>';
+                                                    //     . htmlspecialchars($fila["Created"] ?? 'No disponible') . '</div>';
 
                                                     echo '</div>'; // Cerrar propuesta-item
                                                     echo '</li>'; // Cerrar li
                                                 }
                                             } else {
-                                                echo '<li>No hay proyectos para el contacto ' . htmlspecialchars($contacto['razon_social_contacto'] ?? 'No disponible') . '.</li>';
+                                                //echo '<li>No hay proyectos para el contacto ' . htmlspecialchars($contacto['razon_social_contacto'] ?? 'No disponible') . '.</li>';
                                             }
                                         }
                                     } else {
-                                        echo '<li>No se encontraron resultados.</li>';
+                                        //echo '<li>No se encontraron resultados.</li>';
                                     }
                                     ?>
                                 </ul>

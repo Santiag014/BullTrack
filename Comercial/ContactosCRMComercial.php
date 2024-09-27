@@ -85,19 +85,20 @@ if ($resultado) {
 <body>
     <div class="background-image" style="background-image: url(../Media/FonfoDash.jpg);"></div>
     <div class="GridContanier">
-        <div class="GridInformacionUsuario">
+    <div class="GridInformacionUsuario">
             <div class="Marca">
                 <img src="../Media/LogoBull_2.png" alt="FotoBullMarketing" class="logo_image_Dashboard">
             </div>
             <div class="InformacionDashboar">
                 <div class="FotoUsuarioDashboard">
-                    <div class="TipoGrafia_App"> <strong>BullTrack</strong> <br/> App Seguimiento Interno</div>
+                    <div class="TipoGrafia_App_Primnero"> <strong>BullTrack</strong></div>
+                    <div class="TipoGrafia_App">App Seguimiento Interno</div>
                     <img src="../Media/fotoPerfil.jpg" alt="FotoBullMarketing" class="logo_image_Dashboard">
                     <div class="TipoGrafia"><?php echo $NombreUsuario; ?></div>
-                    <div class="TipoGrafia"><?php echo $rol_user; ?></div>   
+                    <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>   
                 </div>
                 <div class="InformacionModulos">
-                     <div class="ModulosDash" onclick="RedirigirHome(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                <div class="ModulosDash" onclick="RedirigirHome(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
                         <img src="../Media/Iconos/Home.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Home</span>
                     </div>
@@ -113,9 +114,21 @@ if ($resultado) {
                         <img src="../Media/Iconos/Avances.png" alt="local-icon" width="20" height="20" class="local-icon">
                         <span>Avances OT</span>
                     </div>
+                    <div class="ModulosDash" onclick="RedirigirProduccon(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                        <img src="../Media/Iconos/produccion.png" alt="local-icon" width="20" height="20" class="local-icon">
+                        <span>Producción</span>
+                    </div>
+                    <!-- Mostrar Dashboard Gerencial solo si id_rol es 3 -->
+                    <?php if ($id_rol == 3 || $id_rol == 6): ?>
+                        <div class="ModulosDash" onclick="RedirigirGerencia(<?php echo $_SESSION['datos_usuario']['id']; ?>)">
+                            <img src="../Media/Iconos/gerencia.png" alt="local-icon" width="20" height="20" class="local-icon">
+                            <span>Dashboard Gerencial</span>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
+        
         <div class="GridHeaderApp">
             <!-- Breadcrumbs component will be rendered here -->
         </div>
@@ -241,7 +254,7 @@ if ($resultado) {
                                         }
                                         
                                     } else {
-                                        echo '<li>' . htmlspecialchars($todos_contactos['error']) . '</li>';
+                                        //echo '<li>' . htmlspecialchars($todos_contactos['error']) . '</li>';
                                     }
                                     ?>
                                 </ul>
