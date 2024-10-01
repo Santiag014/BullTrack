@@ -52,8 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
     // Preparar la segunda consulta SQL para insertar NIT y razón social en la segunda base de datos
-    $sql2 = "INSERT INTO contacto_crm (nit_contacto, razon_social_contacto, id_usuario, id_contactos_CRM) 
-        VALUES (?, ?, ?, ?)";
+    $sql2 = "INSERT INTO contacto_crm (nit_contacto, razon_social_contacto, id_usuario, id_contactos_CRM, dateCreated) 
+    VALUES (?, ?, ?, ?, NOW())";
 
     // Preparar la primera sentencia
     if ($stmt1 = $conexion->prepare($sql1)) {
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id_contacto = $conexion->insert_id;
 
             // Muestra la consulta de la segunda inserción antes de ejecutarla
-            "Consulta 2: INSERT INTO contacto_crm (nit_contacto, razon_social_contacto, id_usuario, id_contactos_CRM) 
+            "Consulta 2: INSERT INTO contacto_crm (nit_contacto, razon_social_contacto, id_usuario, id_contactos_CRM, dateCreated = NOW()) 
             VALUES ('$nit', '$razon_social', '$id_BULL', '$id_contacto')<br/>";
 
             // Preparar la segunda sentencia en la segunda base de datos

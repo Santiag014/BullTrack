@@ -174,12 +174,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (selectedOption && selectedOption.value !== "") {
             liderId = selectedOption.value; // Guardamos el ID del líder
 
-            // Verificar si el ID ya existe en selectedIds
-            if (selectedIds.includes(liderId)) {
-                alert('Este ID ya ha sido seleccionado como creativo. Por favor, elige otro.');
-                selectLider.value = ""; // Resetear la selección
-                return; // Salir de la función
-            }
+            // // Verificar si el ID ya existe en selectedIds
+            // if (selectedIds.includes(liderId)) {
+            //     alert('Este ID ya ha sido seleccionado como creativo. Por favor, elige otro.');
+            //     selectLider.value = ""; // Resetear la selección
+            //     return; // Salir de la función
+            // }
 
             console.log('Líder seleccionado:', selectedOption.text);
             console.log('ID del líder seleccionado:', liderId); // Solo un ID
@@ -199,12 +199,12 @@ select.addEventListener('change', function () {
             return; // Salir de la función
         }
 
-        // Validar que el ID seleccionado no sea el mismo que el ID del líder
-        if (selectedOption.value === liderId) {
-            alert('No puedes seleccionar el mismo ID que el líder. Por favor, elige otro.');
-            select.value = ""; // Resetear la selección
-            return; // Salir de la función
-        }
+        // // Validar que el ID seleccionado no sea el mismo que el ID del líder
+        // if (selectedOption.value === liderId) {
+        //     alert('No puedes seleccionar el mismo ID que el líder. Por favor, elige otro.');
+        //     select.value = ""; // Resetear la selección
+        //     return; // Salir de la función
+        // }
 
         // Crear el tag solo si el ID no existe ya
         const tag = document.createElement('span');

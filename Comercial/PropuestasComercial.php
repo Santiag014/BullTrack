@@ -68,7 +68,7 @@ if ($resultado) {
             FROM SeguimientoComercial 
             JOIN contacto_crm ON SeguimientoComercial.id_contacto = contacto_crm.id
             LEFT JOIN SeguimientoCreativo ON SeguimientoComercial.id = SeguimientoCreativo.id_comercial
-            WHERE contacto_crm.id_contactos_CRM = $id_contacto AND SeguimientoComercial.isDeleted = 0  AND SeguimientoComercial.estadoPropuesta IN('Propuesta', 'No Aprobada', 'Licitación', 'Presentación de Credenciales')
+            WHERE contacto_crm.id_contactos_CRM = $id_contacto AND SeguimientoComercial.isDeleted = 0
                         GROUP BY SeguimientoComercial.id;";
             
             $resultado2 = mysqli_query($conexion_bull, $sql_1);

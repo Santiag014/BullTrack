@@ -51,7 +51,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // SQL para actualizar las horas en la tabla CreativosHoras
     $sqlHoras = "UPDATE CreativosHoras 
                  SET horasTrabajadas = ?, 
-                     horasExtras = ? 
+                     horasExtras = ? ,
+                     dateUpdate =  NOW() 
                  WHERE usuario_id = ? AND id_seguimiento_creativo = ?";
 
     // Preparar la declaración para el UPDATE en CreativosHoras

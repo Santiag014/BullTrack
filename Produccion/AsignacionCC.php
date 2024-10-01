@@ -90,13 +90,12 @@ if (isset($_POST['userId']) && is_numeric($_POST['userId'])) {
                 <img src="../Media/LogoBull_2.png" alt="FotoBullMarketing" class="logo_image_Dashboard">
             </div>
             <div class="InformacionDashboar">
-            <div class="FotoUsuarioDashboard">
-                    <div class="TipoGrafia_App_Primnero"> <strong>BullTrack</strong></div>
-                    <div class="TipoGrafia_App">App Seguimiento Interno</div>
+                <div class="FotoUsuarioDashboard">
+                    <div class="TipoGrafia_App"> <strong>BullTrack</strong> <br/> App Seguimiento Interno</div>
                     <img src="../Media/fotoPerfil.jpg" alt="FotoBullMarketing" class="logo_image_Dashboard">
                     <div class="TipoGrafia"><?php echo $NombreUsuario; ?></div>
-                    <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>  
-                    
+                    <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>   
+                </div>
                 <div class="InformacionModulos">
                     <div class="ModulosDash" onclick="DashboardGerencial()">
                         <img src="../Media/Iconos/User.png" alt="local-icon" width="20" height="20" class="local-icon">
@@ -111,7 +110,7 @@ if (isset($_POST['userId']) && is_numeric($_POST['userId'])) {
                         <span>Asignación de CC</span>
                     </div>
                 </div>
-            </div>
+            </div>   
         </div>
 
         <div class="GridHeaderApp">
@@ -231,7 +230,7 @@ if (isset($_POST['userId']) && is_numeric($_POST['userId'])) {
                                                 } else {
                                                     echo "<li>No se encontraron usuarios</li>";
                                                 }
-                                                ?>
+                                        ?>
                                     </ul>
                                 </div>
                           </div>

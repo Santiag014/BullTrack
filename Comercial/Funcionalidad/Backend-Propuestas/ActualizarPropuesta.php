@@ -75,7 +75,8 @@ try {
                      id_unidadNegocio = ?, 
                      formatoProceso = ?, 
                      archivosAdjuntos = ?, 
-                     CiudadesImpacto = ? 
+                     CiudadesImpacto = ?,
+                     dateUpdate =  NOW() 
                  WHERE id = ?";
 
         $conexion_bull->begin_transaction();

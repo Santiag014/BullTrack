@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt_verificar->num_rows > 0) {
             // Actualizar registro existente
             $sql_Actualizar_Bulltrack = "UPDATE contacto_crm SET 
-                                        nit_contacto = ?, razon_social_contacto = ?, id_usuario = ?
+                                        nit_contacto = ?, razon_social_contacto = ?, id_usuario = ?, dateUpdate = NOW()
                                         WHERE id_contactos_CRM = ?";
             $stmt_crm = $conexion_bull->prepare($sql_Actualizar_Bulltrack);
             $stmt_crm->bind_param("ssii", $nit, $razon_social, $id_BULL, $id);

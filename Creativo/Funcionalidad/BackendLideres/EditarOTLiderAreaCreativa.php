@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $creativos_proyecto = isset($_POST['CreativosProyecto']) ? $_POST['CreativosProyecto'] : [];
 
     // Preparar una sentencia SQL para la inserción de creativos
-    $sql = "INSERT INTO CreativosHoras (id_seguimiento_creativo, usuario_id, horasTrabajadas, horasExtras, rolCreativos) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO CreativosHoras (id_seguimiento_creativo, usuario_id, horasTrabajadas, horasExtras, rolCreativos, dateCreated) VALUES (?, ?, ?, ?, ?, NOW())";
 
     // Usar una declaración preparada
     $stmt = $conexion_bull->prepare($sql);

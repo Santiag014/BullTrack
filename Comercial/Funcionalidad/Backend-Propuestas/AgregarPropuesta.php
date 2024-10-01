@@ -63,8 +63,9 @@ try {
 
     // Inserción en la tabla SeguimientoComercial
     $sql1 = "INSERT INTO SeguimientoComercial 
-            (id_user, nombreProyecto, descripcionProyecto, valorProyecto, estadoPropuesta, dateEntregaEconomicaCliente, medioContacto1, medioContacto2, observacionProyecto1, observacionProyecto2, id_contacto, id_unidadNegocio, formatoProceso, archivosAdjuntos, CiudadesImpacto, isDeleted) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0')";
+            (id_user, nombreProyecto, descripcionProyecto, valorProyecto, estadoPropuesta, dateEntregaEconomicaCliente, medioContacto1, medioContacto2, observacionProyecto1, observacionProyecto2, id_contacto, id_unidadNegocio, formatoProceso, archivosAdjuntos, CiudadesImpacto, isDeleted, dateCreated) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '0',  NOW() )";
+
 
     $stmt1 = $conexion_bull->prepare($sql1);
     $stmt1->bind_param("isssssssssssssi", $id_BULL, $nombreProyecto, $descripcionProyecto, $valorPropuesta, $estadoPropuesta, $fechaEntregaEconomica, $contacto1, $contacto2, $observacion1, $observacion2, $id_contacto_crm, $unidadNegocio, $formatoProceso, $archivosAdjuntosComercial, $ciudadesImpacto);

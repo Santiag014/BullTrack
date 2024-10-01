@@ -92,7 +92,10 @@ LEFT JOIN
     Usuarios ON CreativosHoras.usuario_id = Usuarios.id
 WHERE 
     SeguimientoComercial.isDeleted = 0 
-    AND SeguimientoCreativo.EstadoProyecto = 'Finalizados'
+    AND SeguimientoCreativo.EstadoProyecto = 'Finalizados' AND SeguimientoCreativo.id IN (
+      SELECT id_seguimiento_creativo
+      FROM CreativosHoras
+      WHERE usuario_id = $id_USER)
 GROUP BY
     SeguimientoCreativo.id,
     SeguimientoComercial.id_user,

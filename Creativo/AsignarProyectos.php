@@ -203,6 +203,66 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
     }
 }
 //var_dump($info_completa);
+
+//Consulta para Contar las que estan Sin Asignar
+$sql_SinAsignar = "SELECT COUNT(*) AS totalSinAsignar FROM `SeguimientoCreativo` WHERE EstadoProyecto = 'Sin Asignar';";
+$resultadoSinAsignar = mysqli_query($conexion_bull, $sql_SinAsignar);
+
+// Verificar si la consulta se ejecuta correctamente
+if ($resultadoSinAsignar) {
+    // Obtener el resultado
+    $rowSinAsignar = mysqli_fetch_assoc($resultadoSinAsignar);
+    $totalSinAsignar = $rowSinAsignar['totalSinAsignar'];
+} else {
+    // Manejar el error si no se ejecuta la consulta
+    $totalSinAsignar = 0;
+    echo "Error en la consulta: " . mysqli_error($conexion_bull);
+}
+
+// Consulta para Contar las que están En Producción
+$sql_EnProduccion = "SELECT COUNT(*) AS totalProduccion FROM `SeguimientoCreativo` WHERE EstadoProyecto = 'En Produccion';";
+$resultadoEnProduccion = mysqli_query($conexion_bull, $sql_EnProduccion);
+
+// Verificar si la consulta se ejecuta correctamente
+if ($resultadoEnProduccion) {
+    // Obtener el resultado
+    $rowProduccion = mysqli_fetch_assoc($resultadoEnProduccion);
+    $totalProduccion = $rowProduccion['totalProduccion'];
+} else {
+    // Manejar el error si no se ejecuta la consulta
+    $totalProduccion = 0;
+    echo "Error en la consulta: " . mysqli_error($conexion_bull);
+}
+
+// Consulta para Contar las que están Finalizados
+$sql_Finalizados = "SELECT COUNT(*) AS totalFinalizados FROM `SeguimientoCreativo` WHERE EstadoProyecto = 'Finalizados';";
+$resultadoFinalizados = mysqli_query($conexion_bull, $sql_Finalizados);
+
+// Verificar si la consulta se ejecuta correctamente
+if ($resultadoFinalizados) {
+    // Obtener el resultado
+    $rowFinalizados = mysqli_fetch_assoc($resultadoFinalizados);
+    $totalFinalizados = $rowFinalizados['totalFinalizados'];
+} else {
+    // Manejar el error si no se ejecuta la consulta
+    $totalFinalizados = 0;
+    echo "Error en la consulta: " . mysqli_error($conexion_bull);
+}
+
+// Consulta para Contar el Total de OTs
+$sql_TotalOTs = "SELECT COUNT(*) AS totalOTs FROM `SeguimientoCreativo`;";
+$resultadoOTs = mysqli_query($conexion_bull, $sql_TotalOTs);
+
+// Verificar si la consulta se ejecuta correctamente
+if ($resultadoOTs) {
+    // Obtener el resultado
+    $rowOTs = mysqli_fetch_assoc($resultadoOTs);
+    $totalOTs = $rowOTs['totalOTs'];
+} else {
+    // Manejar el error si no se ejecuta la consulta
+    $totalOTs = 0;
+    echo "Error en la consulta: " . mysqli_error($conexion_bull);
+}
 ?>
 
 <!DOCTYPE html>
@@ -260,7 +320,22 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
             </div>
         </div>
         <div class="GridHeaderApp">
-            <!-- Breadcrumbs component will be rendered here -->
+            <div class="IndicadoresOTs">
+                <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
+                <span>Total de OTs : <?php echo $totalOTs; ?></span>
+            </div>
+            <div class="IndicadoresOTs">
+                <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
+                <span>Total Sin Asignar : <?php echo $totalSinAsignar; ?></span>
+            </div>
+            <div class="IndicadoresOTs">
+                <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
+                <span>Total En Produccion : <?php echo $totalProduccion; ?> </span>
+            </div>
+            <div class="IndicadoresOTs">
+                <img src="../Media/Iconos/Propuestas.png" alt="local-icon" width="20" height="20" class="local-icon">
+                <span>Total Finalizados : <?php echo $totalFinalizados; ?></span>
+            </div>
         </div>
         <div class="GridHeaderApp_2">
             <div class="BotonSalir" onclick="RedirigirLogin()">
@@ -276,7 +351,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
                         <div class="FormPropuestas">
                             <div class="ParteSuperiorPropuesta">
                                 <div class="InformacionPropuesta">
-                                    <h3>Asignar Ots</h3>
+                                    <h3>Asignar Ordenes de Trabajo</h3>
                                 </div>
                                 <div class="BotonesInteraccion">
                                     <button class="BotonesFormulario" id="editarOTLider" data-creativoProyecto="Creativo_1,Creativo_4,Creativo_5">

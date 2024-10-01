@@ -42,7 +42,7 @@ if (isset($_SESSION['id'])) {
                     <div class="TipoGrafia_App"> <strong>BullTrack</strong> <br/> App Seguimiento Interno</div>
                     <img src="../Media/fotoPerfil.jpg" alt="FotoBullMarketing" class="logo_image_Dashboard">
                     <div class="TipoGrafia"><?php echo $NombreUsuario; ?></div>
-                    <div class="TipoGrafia"><?php echo $rol_user; ?></div>   
+                    <div class="TipoGrafia_Rol"><?php echo $rol_user; ?></div>   
                 </div>
                 <div class="InformacionModulos">
                     <div class="ModulosDash" onclick="DashboardGerencial()">

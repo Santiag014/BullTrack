@@ -44,7 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         artesProyecto = ?, 
                         linkProyecto = ?, 
                         dateLinkProyecto = ?,
-                        EstadoProyecto = ?
+                        EstadoProyecto = ?,
+                        dateUpdate = Now()
                     WHERE id = ?";
     $stmtCreativo = $conexion_bull->prepare($sqlCreativo);
 
@@ -74,7 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Segunda consulta: Actualizar CreativosHoras
     $sqlHoras = "UPDATE CreativosHoras 
                  SET horasTrabajadas = ?, 
-                     horasExtras = ?
+                     horasExtras = ?,
+                     dateUpdate = Now()
                  WHERE usuario_id = ? AND id_seguimiento_creativo = ?";
     $stmtHoras = $conexion_bull->prepare($sqlHoras);
 

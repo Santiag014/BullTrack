@@ -55,12 +55,8 @@
                 const horasLaboradas = item.getAttribute('data-horasTrabajadas');
                 const horasExtras = item.getAttribute('data-horasExtras');
                 const id_usuario_bull = item.getAttribute('data-id_usuario_bull');
-
-
-    
     
                 // Llenar los campos con la información del proyecto
-    
                 document.getElementById('id_Proyecto').value = id_proyecto;
                 document.getElementById('LiderProyecto').value = liderProyecto;
                 document.getElementById('CreativoProyecto').value = idCreativoOT;
@@ -85,9 +81,8 @@
                 document.getElementById('HorasExtra').value = horasExtras;
                 document.getElementById('EstadoProyecto').value = estadoPropuesta;
             });
-        });
+        })
     });
-
 
     let enModoEdicion = false;
 
@@ -97,7 +92,7 @@ document.getElementById('editarOTLiderProyecto').addEventListener('click', funct
     const texto = boton.querySelector('span');
     
     // Seleccionar los inputs del formulario que no se deben habilitar
-    const inputs = document.querySelectorAll('.ParteFormularioOT input:not([name="LiderProyecto"]):not([name="nombreBrief"]):not([name="ObjetivosBrief"]):not([name="TipoClienteOT"]):not([name="DatosAdicionales"]):not([name="EntregablesBrief"]):not([name="CreativoProyecto"])');
+    const inputs = document.querySelectorAll('.ParteFormularioOT input:not([name="LiderProyecto"]):not([name="nombreBrief"]):not([name="ObjetivosBrief"]):not([name="TipoClienteOT"]):not([name="DatosAdicionales"]):not([name="EntregablesBrief"]):not([name="CreativoProyecto"]):not([name="DateEntregaComercial"])');
     const selects = document.querySelectorAll('.ParteFormularioOT select'); // Seleccionar todos los selects
 
     const id_Proyecto = document.querySelector('input[name="id_Proyecto"]').value; // Obtener el campo `id` del contacto seleccionado
